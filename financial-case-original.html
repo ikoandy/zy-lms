@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融机构金融案件数据录入</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+  :root {
+    --bg:#0F1117;--bg-elevated:#161821;--bg-card:#1C1E2A;--bg-input:#22253A;
+    --border:#2A2D42;--border-focus:#4A7CFF;--accent:#4A7CFF;--accent-hover:#6B95FF;
+    --accent-glow:rgba(74,124,255,0.15);--success:#34D399;--success-bg:rgba(52,211,153,0.1);
+    --danger:#F87171;--danger-bg:rgba(248,113,113,0.1);--warning:#FBBF24;
+    --warning-bg:rgba(251,191,36,0.1);--text-primary:#E8EAF0;--text-secondary:#8B8FA8;
+    --text-muted:#5C6080;--gold:#D4A855;--gold-dim:rgba(212,168,85,0.12);
+    --calc-color:#A78BFA;--calc-bg:rgba(167,139,250,0.1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(74,124,255,0.06)0%,transparent 70%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;bottom:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(212,168,85,0.04)0%,transparent 70%);pointer-events:none;z-index:0}
+
+  .header{position:sticky;top:0;z-index:100;background:rgba(15,17,23,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+  .header-left{display:flex;align-items:center;gap:16px}
+  .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),#B8922E);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#1a1a1a;box-shadow:0 2px 12px rgba(212,168,85,0.25)}
+  .header-title h1{font-size:18px;font-weight:600;letter-spacing:.5px;background:linear-gradient(90deg,var(--text-primary),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .header-title p{font-size:12px;color:var(--text-muted);margin-top:2px}
+  .header-stats{display:flex;gap:16px;align-items:center}
+  .stat-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
+  .stat-badge .num{font-family:'DM Sans';font-weight:700;font-size:15px;color:var(--accent)}
+
+  .main{display:flex;min-height:calc(100vh - 73px);position:relative;z-index:1}
+  .form-panel{flex:1;padding:24px 32px;overflow-y:auto;max-height:calc(100vh - 73px)}
+  .form-panel::-webkit-scrollbar{width:6px}
+  .form-panel::-webkit-scrollbar-track{background:transparent}
+  .form-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  /* Customer bar */
+  .customer-bar{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;animation:fadeSlideUp .4s ease both}
+  .customer-bar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .customer-bar-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .customer-bar-title .badge{font-size:11px;font-weight:500;background:var(--accent-glow);color:var(--accent);padding:2px 10px;border-radius:10px}
+  .customer-chips{display:flex;flex-wrap:wrap;gap:8px;min-height:36px;align-items:center}
+  .customer-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--bg-input);border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .2s}
+  .customer-chip:hover{border-color:var(--text-muted)}
+  .customer-chip.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+  .customer-chip .chip-count{font-size:11px;background:var(--bg-card);padding:1px 6px;border-radius:8px;color:var(--text-muted)}
+  .customer-chip.active .chip-count{background:rgba(74,124,255,0.2);color:var(--accent)}
+  .customer-chip .chip-del{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:var(--text-muted);transition:all .2s}
+  .customer-chip .chip-del:hover{background:var(--danger-bg);color:var(--danger)}
+  .customer-chip .chip-edit{font-size:10px;cursor:pointer;color:var(--text-muted);transition:all .2s;padding:0 2px}
+  .customer-chip .chip-edit:hover{color:var(--gold)}
+  .add-customer-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:transparent;border:1px dashed var(--border);font-size:13px;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:inherit}
+  .add-customer-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+  .no-customer-hint{font-size:12px;color:var(--text-muted);padding:6px 0}
+
+  /* Section */
+  .section{margin-bottom:24px;animation:fadeSlideUp .5s ease both}
+  .section:nth-child(2){animation-delay:.05s}.section:nth-child(3){animation-delay:.1s}.section:nth-child(4){animation-delay:.15s}.section:nth-child(5){animation-delay:.2s}
+  @keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+  .section-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .section-icon.blue{background:rgba(74,124,255,0.12);color:var(--accent)}
+  .section-icon.gold{background:var(--gold-dim);color:var(--gold)}
+  .section-icon.green{background:var(--success-bg);color:var(--success)}
+  .section-icon.red{background:var(--danger-bg);color:var(--danger)}
+  .section-icon.purple{background:rgba(168,130,255,0.12);color:#A882FF}
+  .section-title{font-size:15px;font-weight:600;letter-spacing:.3px}
+  .section-count{margin-left:auto;font-size:12px;color:var(--text-muted);background:var(--bg-input);padding:2px 10px;border-radius:10px}
+
+  /* Form grid */
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .form-grid .full-width{grid-column:1/-1}
+  .field-group{display:flex;flex-direction:column;gap:4px}
+  .field-label{font-size:12px;font-weight:500;color:var(--text-secondary);display:flex;align-items:center;gap:4px}
+  .field-label .required{color:var(--danger);font-size:14px}
+  .field-label .auto-calc{font-size:10px;color:var(--calc-color);background:var(--calc-bg);padding:1px 6px;border-radius:4px}
+  .field-label .shared{font-size:10px;color:var(--gold);background:var(--gold-dim);padding:1px 6px;border-radius:4px}
+
+  .field-input{background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text-primary);font-family:inherit;transition:all .2s;outline:none;width:100%}
+  .field-input:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px var(--accent-glow)}
+  .field-input::placeholder{color:var(--text-muted);font-size:13px}
+  .field-input.auto-calc-field{background:var(--calc-bg);border-color:rgba(167,139,250,0.25);color:var(--calc-color);font-weight:600}
+  .field-input.shared-field{background:var(--gold-dim);border-color:rgba(212,168,85,0.25);color:var(--gold);font-weight:500}
+  .field-input:disabled{opacity:.6;cursor:not-allowed}
+  select.field-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6080' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+  /* Toggle switch */
+  .toggle-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-input);border-radius:8px;border:1px solid var(--border);margin-bottom:14px}
+  .toggle-row label{font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;flex:1}
+  .toggle-row label strong{color:var(--text-primary)}
+  .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+  .toggle-switch input{opacity:0;width:0;height:0}
+  .toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:.3s}
+  .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
+  .toggle-switch input:checked+.toggle-slider{background:var(--accent)}
+  .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px)}
+  .shared-hint{font-size:11px;color:var(--gold);margin-top:6px;padding:0 4px;display:none}
+  .shared-hint.show{display:block}
+
+  /* Action bar */
+  .action-bar{display:flex;gap:12px;padding:18px 0;border-top:1px solid var(--border);margin-top:8px}
+  .btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;border:none;display:flex;align-items:center;gap:8px;transition:all .2s}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#3A65D9);color:white;box-shadow:0 2px 12px rgba(74,124,255,0.3)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(74,124,255,0.4)}
+  .btn-secondary{background:var(--bg-card);color:var(--text-secondary);border:1px solid var(--border)}
+  .btn-secondary:hover{border-color:var(--text-muted);color:var(--text-primary)}
+  .btn-success{background:linear-gradient(135deg,var(--success),#22B07D);color:#0a2e1f;box-shadow:0 2px 12px rgba(52,211,153,0.25)}
+  .btn-success:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(52,211,153,0.35)}
+  .btn-danger-sm{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px 8px;border-radius:4px;font-size:12px;transition:all .2s}
+  .btn-danger-sm:hover{color:var(--danger);background:var(--danger-bg)}
+  .btn-edit-sm{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px 8px;border-radius:4px;font-size:12px;transition:all .2s}
+  .btn-edit-sm:hover{color:var(--accent);background:var(--accent-glow)}
+
+  /* Right panel */
+  .records-panel{width:480px;min-width:480px;background:var(--bg-elevated);border-left:1px solid var(--border);display:flex;flex-direction:column;max-height:calc(100vh - 73px)}
+  .records-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .records-header h2{font-size:15px;font-weight:600}
+  .records-list{flex:1;overflow-y:auto;padding:12px}
+  .records-list::-webkit-scrollbar{width:5px}
+  .records-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  .customer-group{margin-bottom:16px}
+  .customer-group-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border)}
+  .customer-group-name{font-size:13px;font-weight:600;flex:1}
+  .customer-group-count{font-size:11px;color:var(--text-muted);background:var(--bg-input);padding:2px 8px;border-radius:8px}
+  .customer-group-del{font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;transition:all .2s}
+  .customer-group-del:hover{color:var(--danger);background:var(--danger-bg)}
+
+  .record-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:all .2s;animation:cardIn .3s ease both}
+  @keyframes cardIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+  .record-card:hover{border-color:var(--accent)}
+  .record-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .record-card-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .record-index{font-family:'DM Sans';font-size:11px;font-weight:700;background:var(--accent-glow);color:var(--accent);padding:1px 8px;border-radius:10px}
+  .record-card-actions{display:flex;gap:2px}
+  .record-card-fields{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+  .record-field{font-size:12px;color:var(--text-secondary);display:flex;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .record-field .label{color:var(--text-muted);flex-shrink:0}
+  .record-field .value{color:var(--text-primary);overflow:hidden;text-overflow:ellipsis}
+  .record-card .joint-badge{font-size:10px;background:var(--gold-dim);color:var(--gold);padding:1px 6px;border-radius:4px}
+
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted)}
+  .empty-state svg{width:64px;height:64px;margin-bottom:16px;opacity:.3}
+  .empty-state p{font-size:14px}
+  .export-bar{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px}
+  .export-bar .btn{flex:1;justify-content:center}
+
+  /* Toast */
+  .toast-container{position:fixed;top:90px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+  .toast{padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;animation:toastIn .3s ease,toastOut .3s ease 2.5s forwards;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+  .toast.success{background:#1a3a2a;color:var(--success);border:1px solid rgba(52,211,153,0.2)}
+  .toast.error{background:#3a1a1a;color:var(--danger);border:1px solid rgba(248,113,113,0.2)}
+  .toast.info{background:#1a2a3a;color:var(--accent);border:1px solid rgba(74,124,255,0.2)}
+  .toast.warn{background:#3a2a1a;color:var(--warning);border:1px solid rgba(251,191,36,0.2)}
+  @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:560px;width:92%;animation:modalIn .3s ease;max-height:90vh;overflow-y:auto}
+  @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  .modal h3{font-size:16px;margin-bottom:16px}
+  .modal p{font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  .modal .form-grid{gap:10px}
+  .modal .field-group{gap:3px}
+  .modal .field-label{font-size:11px}
+  .modal .field-input{padding:7px 10px;font-size:13px}
+
+  @media(max-width:1100px){.main{flex-direction:column}.records-panel{width:100%;min-width:auto;max-height:50vh;border-left:none;border-top:1px solid var(--border)}.form-panel{max-height:none}}
+  @media(max-width:640px){.header{padding:12px 16px;flex-wrap:wrap;gap:10px}.form-panel{padding:16px}.form-grid{grid-template-columns:1fr}.header-stats{gap:8px}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo-icon">金</div>
+    <div class="header-title">
+      <h1>金融机构金融案件数据录入</h1>
+      <p>管理多客户多债务人，支持共同债务关联与自动计算</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-badge"><span>已录入</span><span class="num" id="totalCount">0</span><span>条</span></div>
+    <div class="stat-badge"><span>客户</span><span class="num" id="customerCount">0</span></div>
+    <div class="stat-badge"><span>欠款总额</span><span class="num" id="totalAmount">¥0</span></div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="form-panel" id="formPanel">
+    <!-- Customer bar -->
+    <div class="customer-bar">
+      <div class="customer-bar-header">
+        <div class="customer-bar-title">👥 客户管理 <span class="badge" id="currentCustomerBadge">未选择客户</span></div>
+      </div>
+      <div class="customer-chips" id="customerChips">
+        <span class="no-customer-hint" id="noCustomerHint">点击下方「添加客户」按钮添加金融机构客户</span>
+      </div>
+      <div style="margin-top:10px">
+        <button class="add-customer-btn" id="addCustomerBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          添加客户
+        </button>
+      </div>
+    </div>
+
+    <form id="caseForm" autocomplete="off">
+      <!-- Joint debtor toggle -->
+      <div class="section" style="margin-bottom:16px">
+        <div class="toggle-row">
+          <label for="jointToggle"><strong>🔗 共同债务人模式</strong><br><span style="font-size:11px;color:var(--text-muted)">开启后，合同与借款信息将被共享，多个债务人关联同一笔借款</span></label>
+          <div class="toggle-switch"><input type="checkbox" id="jointToggle"><span class="toggle-slider"></span></div>
+        </div>
+        <div class="shared-hint" id="sharedHint">💡 共同债务人模式下，合同信息（合同号、借款本金、年利率等）只需填写一次，后续添加的债务人自动继承</div>
+      </div>
+
+      <!-- Section 1: Debtor info -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon blue">👤</div>
+          <span class="section-title">债务人基本信息</span>
+          <span class="section-count">8 个字段</span>
+        </div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label"><span class="required">*</span> 姓名</label><input class="field-input" name="姓名" placeholder="请输入债务人姓名" required></div>
+          <div class="field-group"><label class="field-label"><span class="required">*</span> 客户身份证号</label><input class="field-input" name="客户身份证号" placeholder="18位身份证号码" maxlength="18"></div>
+          <div class="field-group"><label class="field-label">性别</label><select class="field-input" name="性别"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></div>
+          <div class="field-group"><label class="field-label">民族</label><input class="field-input" name="民族" placeholder="如：汉族"></div>
+          <div class="field-group"><label class="field-label">手机号</label><input class="field-input" name="手机号" placeholder="11位手机号码" maxlength="11"></div>
+          <div class="field-group"><label class="field-label">第三人</label><input class="field-input" name="第三人" placeholder="担保人/第三人信息"></div>
+          <div class="field-group full-width"><label class="field-label">户籍地址</label><input class="field-input" name="户籍地址" placeholder="请输入户籍地址"></div>
+          <div class="field-group full-width"><label class="field-label">通信地址</label><input class="field-input" name="通信地址" placeholder="请输入通信地址"></div>
+        </div>
+      </div>
+
+      <!-- Section 2: Contract info -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon gold">📋</div>
+          <span class="section-title">合同与借款信息</span>
+          <span class="section-count" id="contractFieldCount">11 个字段</span>
+        </div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">数据提取日期</label><input class="field-input" type="date" name="数据提取日期"></div>
+          <div class="field-group"><label class="field-label">合同号 <span class="shared" id="tag_合同号" style="display:none">共享</span></label><input class="field-input" name="合同号" id="f_合同号" placeholder="请输入合同编号"></div>
+          <div class="field-group"><label class="field-label">委托机构</label><input class="field-input" name="委托机构" id="f_委托机构" placeholder="自动填充当前客户"></div>
+          <div class="field-group"><label class="field-label">贷款人</label><input class="field-input" name="贷款人" placeholder="请输入贷款人"></div>
+          <div class="field-group"><label class="field-label">合同金额 (元) <span class="shared" id="tag_合同金额" style="display:none">共享</span></label><input class="field-input" type="number" name="合同金额" id="f_合同金额" placeholder="0.00" step="0.01"></div>
+          <div class="field-group"><label class="field-label">借款本金 (元) <span class="shared" id="tag_借款本金" style="display:none">共享</span></label><input class="field-input" type="number" name="借款本金" id="f_借款本金" placeholder="0.00" step="0.01"></div>
+          <div class="field-group"><label class="field-label">年利率 (%) <span class="shared" id="tag_年利率" style="display:none">共享</span></label><input class="field-input" type="number" name="年利率" id="f_年利率" placeholder="0.00" step="0.01"></div>
+          <div class="field-group"><label class="field-label">借款申请日期</label><input class="field-input" type="date" name="借款申请日期"></div>
+          <div class="field-group"><label class="field-label">放款日期</label><input class="field-input" type="date" name="放款日期"></div>
+          <div class="field-group"><label class="field-label">放款卡号</label><input class="field-input" name="放款卡号" placeholder="请输入银行卡号"></div>
+          <div class="field-group"><label class="field-label">抵押资产</label><input class="field-input" name="抵押资产" placeholder="请输入抵押资产描述"></div>
+        </div>
+      </div>
+
+      <!-- Section 3: Repayment -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon green">💰</div>
+          <span class="section-title">还款信息</span>
+          <span class="section-count">7 个字段</span>
+        </div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">总分期期数</label><input class="field-input" type="number" name="总分期期数" id="f_总分期期数" placeholder="0" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">已还期数</label><input class="field-input" type="number" name="已还期数" id="f_已还期数" placeholder="0" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">剩余还款期数 <span class="auto-calc">自动</span></label><input class="field-input auto-calc-field" type="number" name="剩余还款期数" id="f_剩余还款期数" placeholder="自动计算" readonly></div>
+          <div class="field-group"><label class="field-label">还款到期日</label><input class="field-input" type="date" name="还款到期日"></div>
+          <div class="field-group"><label class="field-label">已还本金 (元)</label><input class="field-input" type="number" name="已还本金" placeholder="0.00" step="0.01"></div>
+          <div class="field-group"><label class="field-label">已还利息 (元)</label><input class="field-input" type="number" name="已还利息" placeholder="0.00" step="0.01"></div>
+          <div class="field-group"><label class="field-label">已还违约金 (元)</label><input class="field-input" type="number" name="已还违约金" placeholder="0.00" step="0.01"></div>
+        </div>
+      </div>
+
+      <!-- Section 4: Overdue -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-icon red">⚠️</div>
+          <span class="section-title">逾期与欠款信息</span>
+          <span class="section-count">8 个字段</span>
+        </div>
+        <div class="form-grid">
+          <div class="field-group"><label class="field-label">拖欠本金 (元)</label><input class="field-input" type="number" name="拖欠本金" id="f_拖欠本金" placeholder="0.00" step="0.01" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">拖欠利息 (元)</label><input class="field-input" type="number" name="拖欠利息" id="f_拖欠利息" placeholder="0.00" step="0.01" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">罚息 (元)</label><input class="field-input" type="number" name="罚息" id="f_罚息" placeholder="0.00" step="0.01" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">复息 (元)</label><input class="field-input" type="number" name="复息" id="f_复息" placeholder="0.00" step="0.01" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">本金罚息复息 (元) <span class="auto-calc">自动</span></label><input class="field-input auto-calc-field" type="number" name="本金罚息复息" id="f_本金罚息复息" placeholder="自动计算" readonly></div>
+          <div class="field-group"><label class="field-label">订单逾期违约金 (元)</label><input class="field-input" type="number" name="订单逾期违约金" id="f_订单逾期违约金" placeholder="0.00" step="0.01" oninput="calcFields()"></div>
+          <div class="field-group"><label class="field-label">欠款总额 (元) <span class="auto-calc">自动</span></label><input class="field-input auto-calc-field" type="number" name="欠款总额" id="f_欠款总额" placeholder="自动计算" readonly></div>
+          <div class="field-group"><label class="field-label">订单逾期天数</label><input class="field-input" type="number" name="订单逾期天数" placeholder="0"></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button type="submit" class="btn btn-primary" id="addBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          添加债务人
+        </button>
+        <button type="button" class="btn btn-secondary" id="clearFormBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg>
+          清空表单
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Right panel -->
+  <div class="records-panel">
+    <div class="records-header">
+      <h2>📋 已录入债务人</h2>
+      <span style="font-size:12px;color:var(--text-muted)" id="recordHint">暂无记录</span>
+    </div>
+    <div class="records-list" id="recordsList">
+      <div class="empty-state" id="emptyState">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p>先添加客户，再录入债务人信息</p>
+      </div>
+    </div>
+    <div class="export-bar">
+      <button class="btn btn-success" id="exportBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        导出 XLSX
+      </button>
+      <button class="btn btn-secondary" id="clearAllBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        清空全部
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const FIELDS = [
+  '数据提取日期','姓名','客户身份证号','手机号','户籍地址','通信地址',
+  '性别','民族','合同金额','合同号','委托机构','借款申请日期','放款日期',
+  '借款本金','年利率','拖欠本金','拖欠利息','罚息','复息','本金罚息复息',
+  '欠款总额','订单逾期违约金','放款卡号','贷款人','抵押资产','总分期期数',
+  '已还期数','剩余还款期数','还款到期日','已还本金','已还利息','已还违约金',
+  '订单逾期天数','第三人'
+];
+
+// Shared contract fields in joint debtor mode
+const SHARED_FIELDS = ['合同号','合同金额','借款本金','年利率','委托机构'];
+
+let customers = []; // { id, name, info:{}, records:[] }
+let currentCustomerId = null;
+let editingIndex = -1;
+let editingCustomerId = null;
+let customerIdCounter = 1;
+let sharedContractData = null; // stores shared contract info in joint mode
+
+const form = document.getElementById('caseForm');
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = {success:'✓',error:'✗',info:'ℹ',warn:'⚠'};
+  t.innerHTML = `<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+  $('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function getFormData() {
+  const data = {};
+  FIELDS.forEach(f => { data[f] = form.elements[f]?.value?.trim() || ''; });
+  return data;
+}
+
+function setFormData(data) {
+  FIELDS.forEach(f => { if (form.elements[f]) form.elements[f].value = data[f] || ''; });
+}
+
+function clearForm(keepContract=false) {
+  // If joint mode and keepContract, preserve shared fields
+  if (keepContract && $('jointToggle').checked && sharedContractData) {
+    const saved = {};
+    SHARED_FIELDS.forEach(f => { saved[f] = form.elements[f]?.value || ''; });
+    form.reset();
+    SHARED_FIELDS.forEach(f => { if (form.elements[f]) form.elements[f].value = saved[f] || ''; });
+  } else {
+    form.reset();
+    sharedContractData = null;
+  }
+  editingIndex = -1;
+  editingCustomerId = null;
+  $('addBtn').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>添加债务人`;
+  calcFields();
+}
+
+// ===== Auto-calculation =====
+function calcFields() {
+  const v = id => parseFloat($(id)?.value) || 0;
+  const n = (val) => isNaN(val) ? '' : Math.round(val * 100) / 100;
+
+  // 剩余还款期数 = 总分期期数 - 已还期数
+  const remain = v('f_总分期期数') - v('f_已还期数');
+  $('f_剩余还款期数').value = n(remain) >= 0 ? n(remain) : '';
+
+  // 本金罚息复息 = 罚息 + 复息
+  const penaltyTotal = v('f_罚息') + v('f_复息');
+  $('f_本金罚息复息').value = n(penaltyTotal) || '';
+
+  // 欠款总额 = 拖欠本金 + 拖欠利息 + 罚息 + 复息 + 订单逾期违约金
+  const totalDebt = v('f_拖欠本金') + v('f_拖欠利息') + v('f_罚息') + v('f_复息') + v('f_订单逾期违约金');
+  $('f_欠款总额').value = n(totalDebt) || '';
+}
+
+// ===== Joint debtor toggle =====
+$('jointToggle').addEventListener('change', function() {
+  const on = this.checked;
+  $('sharedHint').classList.toggle('show', on);
+  SHARED_FIELDS.forEach(f => {
+    const tag = $('tag_' + f);
+    const field = $('f_' + f);
+    if (tag) tag.style.display = on ? 'inline' : 'none';
+    if (field) {
+      field.classList.toggle('shared-field', on);
+      if (on && sharedContractData && sharedContractData[f]) {
+        field.value = sharedContractData[f];
+      }
+    }
+  });
+  if (on && !sharedContractData) {
+    showToast('共同债务人模式已开启，合同信息将被共享', 'info');
+  }
+  if (!on) {
+    sharedContractData = null;
+  }
+});
+
+// ===== Customer management =====
+function getTotalRecords() { return customers.reduce((s,c) => s + c.records.length, 0); }
+function getTotalAmount() { let s=0; customers.forEach(c => c.records.forEach(r => { s += parseFloat(r['欠款总额'])||0; })); return s; }
+
+function updateStats() {
+  const total = getTotalRecords();
+  $('totalCount').textContent = total;
+  $('customerCount').textContent = customers.length;
+  $('totalAmount').textContent = '¥' + getTotalAmount().toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  $('exportBtn').disabled = total === 0;
+  $('clearAllBtn').disabled = total === 0;
+  $('recordHint').textContent = total > 0 ? `共 ${total} 条债务人记录` : '暂无记录';
+}
+
+function renderCustomerChips() {
+  if (customers.length === 0) {
+    $('noCustomerHint').style.display = 'inline';
+    $('customerChips').querySelectorAll('.customer-chip').forEach(c => c.remove());
+    $('currentCustomerBadge').textContent = '未选择客户';
+    currentCustomerId = null;
+    return;
+  }
+  $('noCustomerHint').style.display = 'none';
+  $('currentCustomerBadge').textContent = currentCustomerId ? (customers.find(c=>c.id===currentCustomerId)?.name||'未选择客户') : '未选择客户';
+  $('customerChips').querySelectorAll('.customer-chip').forEach(c => c.remove());
+  customers.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = `customer-chip${c.id===currentCustomerId?' active':''}`;
+    chip.innerHTML = `<span>${c.name}</span><span class="chip-count">${c.records.length}人</span><span class="chip-edit" onclick="event.stopPropagation();editCustomer(${c.id})" title="编辑机构信息">⚙</span><span class="chip-del" onclick="event.stopPropagation();deleteCustomer(${c.id})" title="删除">✕</span>`;
+    chip.onclick = () => selectCustomer(c.id);
+    $('customerChips').appendChild(chip);
+  });
+}
+
+function selectCustomer(id) {
+  currentCustomerId = id;
+  const c = customers.find(x=>x.id===id);
+  // Auto-fill 委托机构
+  if (c && c.info && c.info['机构全称']) {
+    form.elements['委托机构'].value = c.info['机构全称'];
+  }
+  renderCustomerChips();
+  showToast(`已选择客户: ${c?.name}`, 'info');
+}
+
+// ===== Customer modal (add/edit) =====
+function openCustomerModal(customer=null) {
+  const isEdit = !!customer;
+  const info = customer?.info || {};
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${isEdit?'编辑':'添加'}金融机构客户</h3>
+      <div class="form-grid">
+        <div class="field-group"><label class="field-label"><span class="required">*</span> 机构全称</label><input class="field-input" id="m_机构全称" value="${info['机构全称']||''}" placeholder="如：宜宾农村商业银行"></div>
+        <div class="field-group"><label class="field-label">统一社会信用代码</label><input class="field-input" id="m_统一社会信用代码" value="${info['统一社会信用代码']||''}" placeholder="18位信用代码" maxlength="18"></div>
+        <div class="field-group"><label class="field-label"><span class="required">*</span> 委托人姓名</label><input class="field-input" id="m_委托人姓名" value="${info['委托人姓名']||''}" placeholder="请输入委托人姓名"></div>
+        <div class="field-group"><label class="field-label">委托人电话</label><input class="field-input" id="m_委托人电话" value="${info['委托人电话']||''}" placeholder="委托人联系电话" maxlength="11"></div>
+        <div class="field-group"><label class="field-label"><span class="required">*</span> 授权等级</label>
+          <select class="field-input" id="m_授权等级">
+            <option value="">请选择</option>
+            <option value="省级"${info['授权等级']==='省级'?' selected':''}>省级</option>
+            <option value="市级"${info['授权等级']==='市级'?' selected':''}>市级</option>
+            <option value="县级"${info['授权等级']==='县级'?' selected':''}>县级</option>
+            <option value="镇级"${info['授权等级']==='镇级'?' selected':''}>镇级</option>
+          </select>
+        </div>
+        <div class="field-group"><label class="field-label">联系地址</label><input class="field-input" id="m_联系地址" value="${info['联系地址']||''}" placeholder="机构联系地址"></div>
+        <div class="field-group"><label class="field-label">委托日期</label><input class="field-input" type="date" id="m_委托日期" value="${info['委托日期']||''}"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">取消</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">${isEdit?'保存修改':'确认添加'}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.querySelector('#modalConfirmBtn').addEventListener('click', () => {
+    const name = overlay.querySelector('#m_机构全称').value.trim();
+    if (!name) { showToast('请输入机构全称', 'error'); return; }
+    const infoData = {
+      '机构全称': name,
+      '统一社会信用代码': overlay.querySelector('#m_统一社会信用代码').value.trim(),
+      '委托人姓名': overlay.querySelector('#m_委托人姓名').value.trim(),
+      '委托人电话': overlay.querySelector('#m_委托人电话').value.trim(),
+      '授权等级': overlay.querySelector('#m_授权等级').value,
+      '联系地址': overlay.querySelector('#m_联系地址').value.trim(),
+      '委托日期': overlay.querySelector('#m_委托日期').value,
+    };
+    if (isEdit) {
+      customer.name = name;
+      customer.info = infoData;
+      showToast(`客户「${name}」信息已更新`, 'success');
+    } else {
+      const newC = { id: customerIdCounter++, name, info: infoData, records: [] };
+      customers.push(newC);
+      currentCustomerId = newC.id;
+      showToast(`客户「${name}」已添加（当前 ${customers.length} 个）`, 'success');
+    }
+    overlay.remove();
+    renderCustomerChips();
+    renderRecords();
+    form.elements['姓名']?.focus();
+  });
+}
+
+function editCustomer(id) {
+  const c = customers.find(x=>x.id===id);
+  if (c) openCustomerModal(c);
+}
+
+function deleteCustomer(id) {
+  const c = customers.find(x=>x.id===id);
+  if (!c) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal"><h3>删除客户「${c.name}」</h3><p>确定要删除该客户及其全部 ${c.records.length} 条债务人记录吗？此操作不可撤销。</p><div class="modal-actions"><button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">取消</button><button class="btn" style="background:var(--danger);color:white;" onclick="confirmDeleteCustomer(${id});this.closest('.modal-overlay').remove()">确认删除</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function confirmDeleteCustomer(id) {
+  customers = customers.filter(c=>c.id!==id);
+  if (currentCustomerId===id) currentCustomerId = customers[0]?.id||null;
+  if (editingCustomerId===id) clearForm();
+  renderCustomerChips(); renderRecords();
+  showToast('客户已删除', 'success');
+}
+
+$('addCustomerBtn').addEventListener('click', () => openCustomerModal());
+
+// ===== Records =====
+function renderRecords() {
+  const total = getTotalRecords();
+  if (total === 0) {
+    $('emptyState').style.display = 'flex';
+    $('recordsList').querySelectorAll('.customer-group').forEach(g=>g.remove());
+    updateStats(); return;
+  }
+  $('emptyState').style.display = 'none';
+  $('recordsList').querySelectorAll('.customer-group').forEach(g=>g.remove());
+  let gi = 0;
+  customers.forEach(customer => {
+    if (customer.records.length === 0) return;
+    const group = document.createElement('div');
+    group.className = 'customer-group';
+    const authLevel = customer.info?.['授权等级'] ? ` · ${customer.info['授权等级']}` : '';
+    group.innerHTML = `<div class="customer-group-header"><span class="customer-group-name">👥 ${customer.name}${authLevel}</span><span class="customer-group-count">${customer.records.length} 条</span><button class="customer-group-del" onclick="deleteCustomer(${customer.id})" title="删除">删除</button></div>`;
+    customer.records.forEach((rec) => {
+      const card = document.createElement('div');
+      card.className = 'record-card';
+      card.style.animationDelay = `${gi*0.03}s`;
+      const isJoint = rec['_joint'] === '1';
+      const displayFields = [
+        ['客户身份证号','身份证'],['合同号','合同号'],
+        ['欠款总额','欠款'],['订单逾期天数','逾期'],
+        ['委托机构','机构'],['贷款人','贷款人'],
+      ];
+      let fieldsHtml = displayFields.map(([key,label]) => {
+        let val = rec[key] || '-';
+        if (key==='欠款总额'&&val!=='-') val='¥'+parseFloat(val).toLocaleString('zh-CN',{minimumFractionDigits:2});
+        if (key==='订单逾期天数'&&val!=='-') val=val+' 天';
+        return `<div class="record-field"><span class="label">${label}:</span><span class="value">${val}</span></div>`;
+      }).join('');
+      card.innerHTML = `<div class="record-card-header"><div class="record-card-name"><span class="record-index">#${gi+1}</span><span>${rec['姓名']||'未填写'}</span>${isJoint?'<span class="joint-badge">共同</span>':''}</div><div class="record-card-actions"><button class="btn-edit-sm" onclick="editRecord(${customer.id},${gi})" title="编辑">✏️</button><button class="btn-danger-sm" onclick="deleteRecord(${customer.id},${gi})" title="删除">🗑️</button></div></div><div class="record-card-fields">${fieldsHtml}</div>`;
+      group.appendChild(card);
+      gi++;
+    });
+    $('recordsList').appendChild(group);
+  });
+  updateStats();
+}
+
+function editRecord(customerId, globalIndex) {
+  let li=0,tc=null,localIdx=-1;
+  for (const c of customers) { for (let i=0;i<c.records.length;i++) { if (globalIndex===li){tc=c;localIdx=i;break;} li++; } if(tc)break; }
+  if (!tc) return;
+  editingCustomerId=tc.id; editingIndex=localIdx; currentCustomerId=tc.id;
+  const rec = tc.records[localIdx];
+  // Restore form data
+  FIELDS.forEach(f => { if (form.elements[f]) form.elements[f].value = rec[f]||''; });
+  // Restore joint toggle
+  $('jointToggle').checked = rec['_joint']==='1';
+  $('jointToggle').dispatchEvent(new Event('change'));
+  if (rec['_joint']==='1') sharedContractData = {};
+  SHARED_FIELDS.forEach(f => { if (rec['_joint']==='1') sharedContractData[f]=rec[f]; });
+  renderCustomerChips();
+  $('addBtn').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>更新债务人`;
+  $('formPanel').scrollTo({top:0,behavior:'smooth'});
+  calcFields();
+  showToast(`正在编辑第 ${localIdx+1} 条债务人`, 'info');
+}
+
+function deleteRecord(customerId, globalIndex) {
+  let li=0,tc=null,localIdx=-1;
+  for (const c of customers) { for (let i=0;i<c.records.length;i++) { if (globalIndex===li){tc=c;localIdx=i;break;} li++; } if(tc)break; }
+  if (!tc) return;
+  const name = tc.records[localIdx]?.['姓名']||'未填写';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal"><h3>确认删除</h3><p>确定要删除「${name}」的记录吗？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">取消</button><button class="btn" style="background:var(--danger);color:white;" onclick="doDeleteRecord(${customerId},${globalIndex});this.closest('.modal-overlay').remove()">确认删除</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
+}
+
+function doDeleteRecord(customerId, globalIndex) {
+  let li=0,tc=null,localIdx=-1;
+  for (const c of customers) { for (let i=0;i<c.records.length;i++) { if (globalIndex===li){tc=c;localIdx=i;break;} li++; } if(tc)break; }
+  if (!tc) return;
+  tc.records.splice(localIdx,1);
+  if (editingCustomerId===customerId&&editingIndex===localIdx) clearForm();
+  renderCustomerChips(); renderRecords();
+  showToast('记录已删除', 'success');
+}
+
+// ===== Form submit =====
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const data = getFormData();
+  if (!data['姓名']) { showToast('请至少填写债务人姓名','error'); form.elements['姓名'].focus(); return; }
+  if (!currentCustomerId) { showToast('请先添加客户','error'); return; }
+
+  const isJoint = $('jointToggle').checked;
+  data['_joint'] = isJoint ? '1' : '0';
+
+  if (isJoint) {
+    // Save shared contract data for next debtor
+    sharedContractData = {};
+    SHARED_FIELDS.forEach(f => { sharedContractData[f] = data[f] || ''; });
+  }
+
+  if (editingIndex >= 0 && editingCustomerId !== null) {
+    const c = customers.find(x=>x.id===editingCustomerId);
+    if (c) { c.records[editingIndex] = data; showToast('债务人记录已更新','success'); }
+    clearForm();
+  } else {
+    const c = customers.find(x=>x.id===currentCustomerId);
+    if (c) { c.records.push(data); showToast(`已添加至「${c.name}」（第 ${c.records.length} 条）${isJoint?' · 共同债务人':''}`, 'success'); }
+    clearForm(true); // keep contract data for next joint debtor
+  }
+  renderCustomerChips(); renderRecords();
+});
+
+$('clearFormBtn').addEventListener('click', () => { clearForm(); showToast('表单已清空','info'); });
+
+$('clearAllBtn').addEventListener('click', () => {
+  if (getTotalRecords()===0) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal"><h3>清空所有数据</h3><p>确定要清空全部 ${getTotalRecords()} 条记录（${customers.length} 个客户）吗？</p><div class="modal-actions"><button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">取消</button><button class="btn" style="background:var(--danger);color:white;" onclick="doClearAll();this.closest('.modal-overlay').remove()">确认清空</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.remove(); });
+});
+
+function doClearAll() {
+  customers=[]; currentCustomerId=null; customerIdCounter=1; sharedContractData=null;
+  $('jointToggle').checked=false; $('jointToggle').dispatchEvent(new Event('change'));
+  clearForm(); renderCustomerChips(); renderRecords();
+  showToast('所有数据已清空','success');
+}
+
+// ===== Export =====
+$('exportBtn').addEventListener('click', () => {
+  const total = getTotalRecords();
+  if (total===0) { showToast('没有可导出的记录','error'); return; }
+  const wsData = [FIELDS];
+  customers.forEach(c => c.records.forEach(rec => wsData.push(FIELDS.map(f => rec[f]||''))));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = FIELDS.map(f => ({wch:Math.max(f.length*2.5,12)}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet2');
+  const month = String(new Date().getMonth()+1).padStart(2,'0');
+  XLSX.writeFile(wb, `金融机构金融案件_${customers.length}客户_${total}债务人.xlsx`);
+  showToast(`已导出 ${total} 条记录`, 'success');
+});
+
+// Init
+updateStats(); renderCustomerChips(); renderRecords(); calcFields();
+</script>
+</body>
+</html>
