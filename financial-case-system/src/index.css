@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0F1117;
+  --color-bg-elevated: #161821;
+  --color-bg-card: #1C1E2A;
+  --color-bg-input: #22253A;
+  --color-border: #2A2D42;
+  --color-border-focus: #4A7CFF;
+  --color-accent: #4A7CFF;
+  --color-accent-hover: #6B95FF;
+  --color-success: #34D399;
+  --color-danger: #F87171;
+  --color-warning: #D4A855;
+  --color-gold: #D4A855;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: #E8EAF0;
+  min-height: 100vh;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+}
