@@ -31,7 +31,7 @@ export default function CustomerBar() {
   };
 
   return (
-    <div className="rounded-xl border border-[#1E2029] bg-[#13141C] p-4 animate-[fadeSlideUp_0.3s_ease-out]">
+    <div className="rounded-xl border border-[#1E2029] bg-[#13141C] p-5 animate-[fadeSlideUp_0.3s_ease-out]">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="h-1 w-5 rounded-full bg-gradient-to-r from-[#4A7CFF] to-[#3B6AE0]" />

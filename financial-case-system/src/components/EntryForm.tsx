@@ -123,7 +123,7 @@ export default function EntryForm() {
   };
 
   const inputCls = (field?: string) =>
-    `w-full rounded-lg border bg-[#1A1C27] px-3 py-2 text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-[#D4A855]/50 focus:bg-[#1E2030] focus:ring-1 focus:ring-[#D4A855]/20 ${
+    `w-full rounded-lg border bg-[#1A1C27] px-3.5 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-[#D4A855]/50 focus:bg-[#1E2030] focus:ring-1 focus:ring-[#D4A855]/20 ${
       field && errors[field] ? 'border-[#F87171]' : 'border-[#252836]'
     }`;
 
@@ -144,7 +144,7 @@ export default function EntryForm() {
     required?: boolean;
   }) => (
     <div>
-      <label className="mb-1 block text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+      <label className="mb-1.5 block text-[11px] font-medium text-gray-500 uppercase tracking-wider">
         {label}
         {required && <span className="ml-1 text-[#F87171]">*</span>}
       </label>
@@ -160,9 +160,9 @@ export default function EntryForm() {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-[#1E2029] bg-[#13141C] p-5 animate-[fadeSlideUp_0.3s_ease-out]">
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#1E2029] bg-[#13141C] p-6 animate-[fadeSlideUp_0.3s_ease-out]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#1E2029] pb-3">
+      <div className="flex items-center justify-between border-b border-[#1E2029] pb-4">
         <div className="flex items-center gap-2.5">
           <div className="h-1 w-5 rounded-full bg-gradient-to-r from-[#D4A855] to-[#B8922E]" />
           <h2 className="text-sm font-semibold text-white tracking-wide">
@@ -196,9 +196,9 @@ export default function EntryForm() {
       )}
 
       {/* Basic Info - 3 cols */}
-      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-5">
         <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#D4A855]">基本信息</legend>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <div className="grid grid-cols-3 gap-x-5 gap-y-4">
           <Field label="姓名" field="name" placeholder="借款人姓名" required />
           <div>
             <label className="mb-1 block text-[11px] font-medium text-gray-500 uppercase tracking-wider">是否联合</label>
@@ -227,9 +227,9 @@ export default function EntryForm() {
       </fieldset>
 
       {/* Loan Info - 3 cols */}
-      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-5">
         <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#4A7CFF]">借贷信息</legend>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <div className="grid grid-cols-3 gap-x-5 gap-y-4">
           <Field label="借款本金" field="loanPrincipal" placeholder="元" type="number" />
           <Field label="年利率" field="annualRate" placeholder="如 0.05" type="number" />
           <Field label="合同金额" field="contractAmount" placeholder="元" type="number" />
@@ -245,9 +245,9 @@ export default function EntryForm() {
       </fieldset>
 
       {/* Repayment Info - 4 cols for numeric fields */}
-      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-5">
         <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#34D399]">还款信息</legend>
-        <div className="grid grid-cols-4 gap-x-4 gap-y-3">
+        <div className="grid grid-cols-4 gap-x-5 gap-y-4">
           <Field label="已还本金" field="paidPrincipal" type="number" />
           <Field label="已还利息" field="paidInterest" type="number" />
           <Field label="已还罚息" field="paidPenalty" type="number" />
@@ -258,7 +258,7 @@ export default function EntryForm() {
           <Field label="违约金" field="orderOverduePenalty" type="number" />
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-3 gap-4">
           <div className={warningCls}>
             <div className="flex justify-between">
               <span className="text-xs">本金+罚息+复利</span>
@@ -275,9 +275,9 @@ export default function EntryForm() {
       </fieldset>
 
       {/* Other Info - 3 cols with full-width addresses */}
-      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-5">
         <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#A78BFA]">其他信息</legend>
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <div className="grid grid-cols-3 gap-x-5 gap-y-4">
           <Field label="逾期天数" field="overdueDays" type="number" />
           <Field label="第三方" field="thirdParty" placeholder="第三方信息" />
           <Field label="数据提取日期" field="dataExtractionDate" type="date" />

@@ -82,16 +82,16 @@ export default function App() {
         {/* Content */}
         <main className="print-area pb-8">
           {currentTab === 'entry' && (
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-5 pt-5">
               {/* Left: Form area */}
-              <section className="w-[56%] min-w-0 space-y-4">
+              <section className="w-[58%] min-w-0 space-y-5">
                 <CustomerBar />
                 <EntryForm />
               </section>
 
               {/* Right: Record list */}
               <aside className="h-[calc(100vh-145px)] min-w-0 shrink-0 sticky top-[105px]">
-                <div className="h-full rounded-xl border border-[#2A2D3E] bg-[#161821] overflow-hidden flex flex-col">
+                <div className="h-full rounded-xl border border-[#1E2029] bg-[#0F1017] overflow-hidden flex flex-col">
                   <RecordList />
                 </div>
               </aside>
