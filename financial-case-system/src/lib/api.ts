@@ -132,4 +132,12 @@ export const api = {
 
   exportXlsxUrl: () => `${BASE}/export/xlsx`,
   downloadTemplateUrl: () => `${BASE}/export/template`,
+  mergeExportUrl: (params?: { customerId?: number | null; keyword?: string; ids?: number[] }) => {
+    const qs = new URLSearchParams();
+    if (params?.customerId) qs.set('customer_id', String(params.customerId));
+    if (params?.keyword) qs.set('keyword', params.keyword);
+    if (params?.ids && params.ids.length > 0) qs.set('ids', params.ids.join(','));
+    const query = qs.toString();
+    return `${BASE}/export/merge${query ? `?${query}` : ''}`;
+  },
 };

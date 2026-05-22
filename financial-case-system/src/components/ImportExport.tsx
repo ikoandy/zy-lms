@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Upload, Download, Printer, FileSpreadsheet, Check, X, Loader2 } from 'lucide-react';
+import { Upload, Download, Printer, FileSpreadsheet, Check, X, Loader2, Merge } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import { api } from '@/lib/api';
 import type { DebtorRecord } from '@/lib/api';
@@ -148,6 +148,9 @@ export default function ImportExport() {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
+        <button onClick={() => window.open(api.mergeExportUrl(), '_blank')} className="flex items-center gap-2 rounded-lg bg-[#34D399] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#2FC78A]">
+          <Merge size={15} /> 合并导出
+        </button>
         <button onClick={() => window.open(api.downloadTemplateUrl(), '_blank')} className="flex items-center gap-2 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-4 py-2.5 text-sm text-gray-300 transition-colors hover:bg-[#22253A]">
           <Download size={15} /> 下载模板
         </button>
