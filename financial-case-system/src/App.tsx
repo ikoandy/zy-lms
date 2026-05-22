@@ -77,12 +77,12 @@ export default function App() {
       {/* Content */}
       <main className="print-area mx-auto max-w-[1600px] px-6 py-6">
         {currentTab === 'entry' && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[75%_1fr]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
             <div className="space-y-6 overflow-y-auto custom-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)' }}>
               <CustomerBar />
               <EntryForm />
             </div>
-            <div className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-5 min-w-0">
+            <div className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-5">
               <RecordList />
             </div>
           </div>
