@@ -23,47 +23,37 @@ export default function Header() {
     fetchStats();
   }, [fetchStats]);
 
-  if (!mounted || !overviewStats) {
-    return (
-      <header className="sticky top-0 z-50 border-b border-[#2A2D3E] bg-[#0F1117]/80 backdrop-blur-xl px-6 py-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#D4A855] to-[#B8922E] text-sm font-bold text-[#1a1a1a]">
-            金
-          </div>
-          <h1 className="text-lg font-semibold text-white">金融机构金融案件数据录入</h1>
-        </div>
-      </header>
-    );
-  }
-
-  const stats = [
-    { icon: Users, label: '总记录数', value: String(overviewStats.totalRecords), color: '#4A7CFF' },
-    { icon: Building2, label: '客户数量', value: String(overviewStats.totalCustomers), color: '#D4A855' },
-    { icon: DollarSign, label: '欠款总额', value: `¥${fmt(toNum(overviewStats.totalDebt))}`, color: '#F87171' },
-    { icon: TrendingUp, label: '平均欠款', value: `¥${fmt(toNum(overviewStats.avgDebt))}`, color: '#A78BFA' },
-  ];
-
   return (
-    <header className="sticky top-0 z-50 border-b border-[#2A2D3E] bg-[#0F1117]/80 backdrop-blur-xl px-6 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#D4A855] to-[#B8922E] text-sm font-bold text-[#1a1a1a]">
+    <header className="sticky top-0 z-50 border-b border-[#1E2029] bg-[#0F1117]/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-[57px] max-w-[1680px] items-center justify-between px-5">
+        {/* Logo + Title */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#D4A855] via-[#C49A3F] to-[#B8922E] text-xs font-bold text-[#0F1117] shadow-lg shadow-[#D4A855]/15">
             金
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-white">金融机构金融案件数据录入</h1>
-            <p className="text-xs text-gray-500">Financial Case Data Entry System</p>
+          <div className="flex flex-col leading-tight">
+            <h1 className="text-sm font-semibold text-white tracking-wide">金融案件数据录入系统</h1>
+            <span className="text-[10px] text-gray-600 font-medium">Financial Case Data Entry</span>
           </div>
         </div>
-        <div className="flex gap-3">
-          {stats.map((s) => (
-            <div key={s.label} className="flex items-center gap-2 rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] px-4 py-2">
-              <s.icon size={16} style={{ color: s.color }} />
-              <span className="text-xs text-gray-400">{s.label}</span>
-              <span className="text-sm font-bold text-white">{s.value}</span>
-            </div>
-          ))}
-        </div>
+
+        {/* Stats Pills */}
+        {mounted && overviewStats && (
+          <div className="flex items-center gap-2">
+            {[
+              { icon: Users, value: String(overviewStats.totalRecords), label: '记录', color: '#4A7CFF' },
+              { icon: Building2, value: String(overviewStats.totalCustomers), label: '客户', color: '#D4A855' },
+              { icon: DollarSign, value: `¥${fmt(toNum(overviewStats.totalDebt))}`, label: '欠款', color: '#F87171' },
+              { icon: TrendingUp, value: `¥${fmt(toNum(overviewStats.avgDebt))}`, label: '均欠', color: '#A78BFA' },
+            ].map((s) => (
+              <div key={s.label} className="group flex items-center gap-1.5 rounded-full border border-[#1E2029] bg-[#161821] px-2.5 py-1 transition-colors hover:border-[#2A2D3E]">
+                <s.icon size={12} style={{ color: s.color }} className="opacity-70 group-hover:opacity-100 transition-opacity" />
+                <span className="text-xs font-semibold text-white tabular-nums">{s.value}</span>
+                <span className="text-[9px] text-gray-600 uppercase tracking-wider">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );

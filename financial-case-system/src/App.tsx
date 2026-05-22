@@ -32,7 +32,7 @@ export default function App() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0F1117]">
+    <div className="min-h-screen bg-[#0F1117]">
       <Header />
 
       {/* Toast Notifications */}
@@ -54,52 +54,63 @@ export default function App() {
         ))}
       </div>
 
-      {/* Tab Bar */}
-      <div className="shrink-0 border-b border-[#2A2D3E] bg-[#161821] px-6">
-        <div className="flex gap-1">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab?.(t.key)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                currentTab === t.key
-                  ? 'border-b-2 border-[#4A7CFF] text-[#4A7CFF]'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <t.icon size={15} />
-              {t.label}
-            </button>
-          ))}
-        </div>
+      {/* Tab Bar + Content Container */}
+      <div className="mx-auto w-full max-w-[1680px] px-5">
+        {/* Tab Bar */}
+        <nav className="sticky top-[57px] z-40 border-b border-[#2A2D3E] bg-[#0F1117]/95 backdrop-blur-md">
+          <div className="flex gap-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab?.(t.key)}
+                className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  currentTab === t.key
+                    ? 'text-[#D4A855]'
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                <t.icon size={15} />
+                {t.label}
+                {currentTab === t.key && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D4A855] to-[#B8922E] rounded-full" />
+                )}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Content */}
+        <main className="print-area pb-8">
+          {currentTab === 'entry' && (
+            <div className="flex gap-4 pt-4">
+              {/* Left: Form area */}
+              <section className="w-[56%] min-w-0 space-y-4">
+                <CustomerBar />
+                <EntryForm />
+              </section>
+
+              {/* Right: Record list */}
+              <aside className="h-[calc(100vh-145px)] min-w-0 shrink-0 sticky top-[105px]">
+                <div className="h-full rounded-xl border border-[#2A2D3E] bg-[#161821] overflow-hidden flex flex-col">
+                  <RecordList />
+                </div>
+              </aside>
+            </div>
+          )}
+
+          {currentTab === 'import' && (
+            <div className="mx-auto max-w-3xl py-6">
+              <ImportExport />
+            </div>
+          )}
+
+          {currentTab === 'stats' && (
+            <div className="py-6">
+              <StatsPanel />
+            </div>
+          )}
+        </main>
       </div>
-
-      {/* Content */}
-      <main className="print-area flex-1 mx-auto w-full max-w-[1600px] px-6 py-5">
-        {currentTab === 'entry' && (
-          <div className="flex h-[calc(100vh-155px)] gap-5">
-            {/* Left: Form area - wider for data entry */}
-            <div className="w-[55%] min-w-0 shrink-0 overflow-y-auto custom-scrollbar pr-1">
-              <CustomerBar />
-              <EntryForm />
-            </div>
-            {/* Right: Record list - narrower, compact */}
-            <div className="flex-1 min-w-0 rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-3 overflow-hidden flex flex-col">
-              <RecordList />
-            </div>
-          </div>
-        )}
-
-        {currentTab === 'import' && (
-          <div className="mx-auto max-w-3xl">
-            <ImportExport />
-          </div>
-        )}
-
-        {currentTab === 'stats' && (
-          <StatsPanel />
-        )}
-      </main>
     </div>
   );
 }

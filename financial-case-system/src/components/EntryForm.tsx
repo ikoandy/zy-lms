@@ -123,12 +123,12 @@ export default function EntryForm() {
   };
 
   const inputCls = (field?: string) =>
-    `w-full rounded-lg border bg-[#22253A] px-3 py-2 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-[#4A7CFF] ${
-      field && errors[field] ? 'border-[#F87171]' : 'border-[#2A2D3E]'
+    `w-full rounded-lg border bg-[#1A1C27] px-3 py-2 text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-[#D4A855]/50 focus:bg-[#1E2030] focus:ring-1 focus:ring-[#D4A855]/20 ${
+      field && errors[field] ? 'border-[#F87171]' : 'border-[#252836]'
     }`;
 
   const warningCls =
-    'w-full rounded-lg border border-[#D4A855]/30 bg-[#D4A855]/5 px-3 py-2.5 text-sm text-[#D4A855] outline-none';
+    'w-full rounded-lg border border-[#D4A855]/20 bg-[#D4A855]/5 px-3 py-2.5 text-sm text-[#D4A855] outline-none';
 
   const Field = ({
     label,
@@ -144,7 +144,7 @@ export default function EntryForm() {
     required?: boolean;
   }) => (
     <div>
-      <label className="mb-1 block text-xs text-gray-400">
+      <label className="mb-1 block text-[11px] font-medium text-gray-500 uppercase tracking-wider">
         {label}
         {required && <span className="ml-1 text-[#F87171]">*</span>}
       </label>
@@ -155,31 +155,34 @@ export default function EntryForm() {
         placeholder={placeholder}
         className={inputCls(field)}
       />
-      {errors[field] && <p className="mt-1 text-xs text-[#F87171]">{errors[field]}</p>}
+      {errors[field] && <p className="mt-1 text-[11px] text-[#F87171]">{errors[field]}</p>}
     </div>
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-[#1E2029] bg-[#13141C] p-5 animate-[fadeSlideUp_0.3s_ease-out]">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-white">
-          {editingRecord ? '编辑记录' : '数据录入'}
-        </h2>
+      <div className="flex items-center justify-between border-b border-[#1E2029] pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="h-1 w-5 rounded-full bg-gradient-to-r from-[#D4A855] to-[#B8922E]" />
+          <h2 className="text-sm font-semibold text-white tracking-wide">
+            {editingRecord ? '编辑记录' : '数据录入'}
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="submit"
-            className="flex items-center gap-1.5 rounded-lg bg-[#4A7CFF] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#3B6AE0]"
+            className="flex items-center gap-1.5 rounded-lg bg-[#D4A855] px-4 py-2 text-xs font-semibold text-[#0F1117] transition-all hover:bg-[#C49A3F] active:scale-[0.97] shadow-lg shadow-[#D4A855]/15"
           >
-            <Save size={15} />
+            <Save size={13} />
             {editingRecord ? '保存修改' : '保存记录'}
           </button>
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-3 py-2 text-sm text-gray-300 transition-colors hover:bg-[#2A2D3E]"
+            className="flex items-center gap-1.5 rounded-lg border border-[#252836] bg-transparent px-3 py-2 text-xs text-gray-400 transition-colors hover:border-[#333648] hover:text-gray-300"
           >
-            <RotateCcw size={13} />
+            <RotateCcw size={12} />
             重置
           </button>
         </div>
@@ -187,27 +190,27 @@ export default function EntryForm() {
 
       {/* Global Error */}
       {errors._global && (
-        <div className="rounded-lg border border-[#F87171]/30 bg-[#F87171]/10 px-4 py-3 text-sm text-[#F87171]">
+        <div className="rounded-lg border border-[#F87171]/30 bg-[#F87171]/8 px-4 py-2.5 text-sm text-[#F87171]">
           {errors._global}
         </div>
       )}
 
       {/* Basic Info - 3 cols */}
-      <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
-        <legend className="px-1 text-sm font-medium text-[#D4A855]">基本信息</legend>
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+        <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#D4A855]">基本信息</legend>
         <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="姓名" field="name" placeholder="借款人姓名" required />
           <div>
-            <label className="mb-1 block text-xs text-gray-400">是否联合</label>
+            <label className="mb-1 block text-[11px] font-medium text-gray-500 uppercase tracking-wider">是否联合</label>
             <button
               type="button"
               onClick={() => handleChange('isJoint', !form.isJoint)}
               className={`relative inline-flex h-5 w-9 cursor-pointer items-center rounded-full transition-colors ${
-                form.isJoint ? 'bg-[#4A7CFF]' : 'bg-[#2A2D3E]'
+                form.isJoint ? 'bg-[#D4A855]' : 'bg-[#252836]'
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
                   form.isJoint ? 'translate-x-4' : 'translate-x-0.5'
                 }`}
               />
@@ -224,8 +227,8 @@ export default function EntryForm() {
       </fieldset>
 
       {/* Loan Info - 3 cols */}
-      <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
-        <legend className="px-1 text-sm font-medium text-[#4A7CFF]">借贷信息</legend>
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+        <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#4A7CFF]">借贷信息</legend>
         <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="借款本金" field="loanPrincipal" placeholder="元" type="number" />
           <Field label="年利率" field="annualRate" placeholder="如 0.05" type="number" />
@@ -242,8 +245,8 @@ export default function EntryForm() {
       </fieldset>
 
       {/* Repayment Info - 4 cols for numeric fields */}
-      <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
-        <legend className="px-1 text-sm font-medium text-[#34D399]">还款信息</legend>
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+        <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#34D399]">还款信息</legend>
         <div className="grid grid-cols-4 gap-x-4 gap-y-3">
           <Field label="已还本金" field="paidPrincipal" type="number" />
           <Field label="已还利息" field="paidInterest" type="number" />
@@ -259,21 +262,21 @@ export default function EntryForm() {
           <div className={warningCls}>
             <div className="flex justify-between">
               <span className="text-xs">本金+罚息+复利</span>
-              <span className="font-medium">{calculated.principalPenaltyCompound.toLocaleString()}</span>
+              <span className="font-semibold tabular-nums">{calculated.principalPenaltyCompound.toLocaleString()}</span>
             </div>
           </div>
           <div className={`col-span-2 ${warningCls}`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium">总欠款（自动计算）</span>
-              <span className="text-lg font-bold text-[#F87171]">¥{calculated.totalDebt.toLocaleString()}</span>
+              <span className="text-xs font-semibold">总欠款（自动计算）</span>
+              <span className="text-base font-bold text-[#F87171] tabular-nums">¥{calculated.totalDebt.toLocaleString()}</span>
             </div>
           </div>
         </div>
       </fieldset>
 
-      {/* Other Info - 2 cols with full-width addresses */}
-      <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
-        <legend className="px-1 text-sm font-medium text-[#A78BFA]">其他信息</legend>
+      {/* Other Info - 3 cols with full-width addresses */}
+      <fieldset className="rounded-lg border border-[#1E2029] bg-[#0F1017] p-4">
+        <legend className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#A78BFA]">其他信息</legend>
         <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="逾期天数" field="overdueDays" type="number" />
           <Field label="第三方" field="thirdParty" placeholder="第三方信息" />

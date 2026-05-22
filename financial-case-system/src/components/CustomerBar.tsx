@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, X, Edit2 } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 import ConfirmModal from './ConfirmModal';
 
@@ -31,54 +31,57 @@ export default function CustomerBar() {
   };
 
   return (
-    <div className="animate-[fadeSlideUp_0.4s_ease_both] rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-white">
-          委托方管理
-          <span className="ml-2 rounded bg-[#4A7CFF]/15 px-2 py-0.5 text-xs font-normal text-[#4A7CFF]">
-            {customers.length} 个
-          </span>
-        </h3>
+    <div className="rounded-xl border border-[#1E2029] bg-[#13141C] p-4 animate-[fadeSlideUp_0.3s_ease-out]">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="h-1 w-5 rounded-full bg-gradient-to-r from-[#4A7CFF] to-[#3B6AE0]" />
+          <h3 className="text-sm font-semibold text-white tracking-wide">
+            委托方
+            <span className="ml-2 rounded-full bg-[#4A7CFF]/10 px-2 py-0.5 text-[10px] font-medium text-[#4A7CFF] tabular-nums">
+              {customers.length}
+            </span>
+          </h3>
+        </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-1 rounded-lg bg-[#4A7CFF]/10 px-3 py-1.5 text-xs font-medium text-[#4A7CFF] transition-colors hover:bg-[#4A7CFF]/20"
+          className="flex items-center gap-1 rounded-lg bg-[#4A7CFF]/8 px-3 py-1.5 text-xs font-medium text-[#4A7CFF] transition-all hover:bg-[#4A7CFF]/15"
         >
-          <Plus size={13} />
+          <Plus size={12} />
           新增
         </button>
       </div>
 
       {showAdd && (
-        <div className="mb-2 space-y-1.5 rounded-lg border border-[#4A7CFF]/30 bg-[#4A7CFF]/5 p-2.5">
+        <div className="mb-3 space-y-2 rounded-lg border border-[#4A7CFF]/20 bg-[#0F1017] p-3 animate-[fadeSlideUp_0.2s_ease-out]">
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="客户名称 *"
-            className="w-full rounded border border-[#2A2D3E] bg-[#22253A] px-3 py-1.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#4A7CFF]"
+            className="w-full rounded-lg border border-[#252836] bg-[#1A1C27] px-3 py-1.5 text-xs text-white placeholder-gray-600 outline-none transition-colors focus:border-[#4A7CFF]/50 focus:ring-1 focus:ring-[#4A7CFF]/20"
           />
           <input
             value={newInst}
             onChange={(e) => setNewInst(e.target.value)}
             placeholder="机构名称 *"
-            className="w-full rounded border border-[#2A2D3E] bg-[#22253A] px-3 py-1.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#4A7CFF]"
+            className="w-full rounded-lg border border-[#252836] bg-[#1A1C27] px-3 py-1.5 text-xs text-white placeholder-gray-600 outline-none transition-colors focus:border-[#4A7CFF]/50 focus:ring-1 focus:ring-[#4A7CFF]/20"
           />
           <input
             value={newPrincipal}
             onChange={(e) => setNewPrincipal(e.target.value)}
             placeholder="负责人姓名"
-            className="w-full rounded border border-[#2A2D3E] bg-[#22253A] px-3 py-1.5 text-xs text-white placeholder-gray-500 outline-none focus:border-[#4A7CFF]"
+            className="w-full rounded-lg border border-[#252836] bg-[#1A1C27] px-3 py-1.5 text-xs text-white placeholder-gray-600 outline-none transition-colors focus:border-[#4A7CFF]/50 focus:ring-1 focus:ring-[#4A7CFF]/20"
           />
           <div className="flex gap-2">
             <button
               onClick={handleAdd}
               disabled={!newName.trim() || !newInst.trim()}
-              className="flex-1 rounded-lg bg-[#4A7CFF] py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#3B6AE0] disabled:opacity-40"
+              className="flex-1 rounded-lg bg-[#4A7CFF] py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#3B6AE0] disabled:opacity-30"
             >
               确认添加
             </button>
             <button
               onClick={() => setShowAdd(false)}
-              className="rounded-lg border border-[#2A2D3E] px-3 py-1.5 text-xs text-gray-400 transition-colors hover:bg-[#2A2D3E]"
+              className="rounded-lg border border-[#252836] px-3 py-1.5 text-xs text-gray-500 transition-colors hover:text-gray-300 hover:border-[#333648]"
             >
               取消
             </button>
@@ -86,25 +89,25 @@ export default function CustomerBar() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 min-h-[36px] items-center">
+      <div className="flex flex-wrap gap-1.5 min-h-[34px] items-center">
         {customers.length === 0 && (
-          <p className="text-xs text-gray-500">暂无委托方，请先添加</p>
+          <p className="text-xs text-gray-600">暂无委托方，请先添加</p>
         )}
         {customers.map((c) => (
           <button
             key={c.id}
             type="button"
             onClick={() => setCurrentCustomerId(c.id)}
-            className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all ${
+            className={`group relative flex items-center gap-1.5 rounded-full pl-3 pr-2 py-1 text-xs font-medium transition-all ${
               currentCustomerId === c.id
-                ? 'bg-[#4A7CFF]/15 border-[#4A7CFF] text-[#4A7CFF]'
-                : 'bg-[#22253A] border-[#2A2D3E] text-gray-300 hover:border-gray-500'
-            } border`}
+                ? 'bg-[#D4A855]/15 text-[#D4A855] ring-1 ring-[#D4A855]/30'
+                : 'bg-[#1A1C27] text-gray-400 ring-1 ring-transparent hover:text-gray-200 hover:ring-[#252836]'
+            }`}
           >
             <span>{c.name || c.institutionName}</span>
             <span
-              className={`rounded-full px-1.5 py-0.5 text-[10px] ${
-                currentCustomerId === c.id ? 'bg-[#4A7CFF]/20' : 'bg-[#1C1E2A] text-gray-500'
+              className={`rounded-full px-1.5 py-px text-[9px] tabular-nums ${
+                currentCustomerId === c.id ? 'bg-[#D4A855]/20 text-[#D4A855]' : 'bg-[#0F1017] text-gray-600'
               }`}
             >
               {c.recordCount || 0}
@@ -116,9 +119,9 @@ export default function CustomerBar() {
                   setDeletingId(c.id);
                   setConfirmOpen(true);
                 }}
-                className="ml-0.5 cursor-pointer rounded-full p-0.5 text-gray-600 opacity-0 transition-all hover:bg-[#F87171]/20 hover:text-[#F87171] group-hover:opacity-100"
+                className="ml-0.5 cursor-pointer rounded-full p-0.5 text-gray-700 opacity-0 transition-all hover:bg-[#F87171]/15 hover:text-[#F87171] group-hover:opacity-100"
               >
-                <X size={10} />
+                <X size={9} />
               </span>
             )}
           </button>

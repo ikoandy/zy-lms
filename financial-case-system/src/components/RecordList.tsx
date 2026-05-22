@@ -26,7 +26,6 @@ export default function RecordList() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 合并导出弹窗状态
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
   const [mergeSearch, setMergeSearch] = useState('');
   const [mergeSelectedIds, setMergeSelectedIds] = useState<Set<number>>(new Set());
@@ -48,7 +47,6 @@ export default function RecordList() {
     return list;
   }, [records, filterCustomerId, searchKeyword]);
 
-  // 弹窗内的记录列表（支持独立搜索）
   const mergeFilteredRecords = useMemo(() => {
     let list = records;
     if (mergeSearch) {
@@ -63,7 +61,6 @@ export default function RecordList() {
     return list;
   }, [records, mergeSearch]);
 
-  // 全选逻辑：当搜索结果全部选中时视为全选
   useEffect(() => {
     if (mergeSelectAll && mergeFilteredRecords.length > 0) {
       setMergeSelectedIds(new Set(mergeFilteredRecords.map((r) => r.id)));
@@ -96,7 +93,6 @@ export default function RecordList() {
     setConfirmOpen(false);
   };
 
-  // 打开合并导出弹窗时，默认全选当前筛选的数据
   const handleOpenMergeModal = useCallback(() => {
     setMergeSearch('');
     setMergeSelectedIds(new Set(filtered.map((r) => r.id)));
@@ -141,70 +137,86 @@ export default function RecordList() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Search & Filter */}
-      <div className="mb-2 flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
-          <input
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            placeholder="搜索姓名、身份证、合同号..."
-            className="w-full rounded-lg border border-[#2A2D3E] bg-[#22253A] py-1.5 pl-8 pr-3 text-xs text-white placeholder-gray-500 outline-none transition-colors focus:border-[#4A7CFF]"
-          />
+      {/* Panel Header */}
+      <div className="shrink-0 border-b border-[#1E2029] px-4 py-3">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-4 rounded-full bg-gradient-to-r from-[#34D399] to-[#26B777]" />
+            <span className="text-xs font-semibold text-white tracking-wide uppercase">案件记录</span>
+            <span className="rounded-full bg-[#34D399]/10 px-1.5 py-px text-[9px] font-medium text-[#34D399] tabular-nums">{filtered.length}</span>
+          </div>
         </div>
-        <div className="relative">
-          <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
-          <select
-            value={filterCustomerId ?? ''}
-            onChange={(e) => setFilterCustomerId(e.target.value ? Number(e.target.value) : null)}
-            className="appearance-none rounded-lg border border-[#2A2D3E] bg-[#22253A] py-1.5 pl-8 pr-7 text-xs text-white outline-none transition-colors focus:border-[#4A7CFF]"
-          >
-            <option value="">全部客户</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>{c.name || c.institutionName}</option>
-            ))}
-          </select>
+
+        {/* Search + Filter */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600" />
+            <input
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder="搜索姓名、身份证、合同号..."
+              className="w-full rounded-lg border border-[#252836] bg-[#0F1017] py-1.5 pl-8 pr-3 text-xs text-gray-200 placeholder-gray-600 outline-none transition-all focus:border-[#34D399]/40 focus:bg-[#13141C]"
+            />
+          </div>
+          <div className="relative">
+            <Filter size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600" />
+            <select
+              value={filterCustomerId ?? ''}
+              onChange={(e) => setFilterCustomerId(e.target.value ? Number(e.target.value) : null)}
+              className="appearance-none rounded-lg border border-[#252836] bg-[#0F1017] py-1.5 pl-7 pr-6 text-xs text-gray-200 outline-none transition-all focus:border-[#34D399]/40"
+            >
+              <option value="">全部</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>{c.name || c.institutionName}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <span className="shrink-0 text-[11px] text-gray-500 whitespace-nowrap">{filtered.length} 条</span>
       </div>
 
-      {/* Records List */}
-      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-1">
+      {/* Records List - Scrollable */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-3 py-2 space-y-2">
         {Array.from(grouped.entries()).map(([customerId, recs]) => (
           <div key={customerId}>
-            <div className="mb-1 flex items-center gap-2">
-              <div className="h-px flex-1 bg-[#2A2D3E]" />
-              <span className="text-[10px] font-medium text-[#D4A855]">{getCustomerName(customerId)}</span>
-              <span className="text-[9px] text-gray-500">({recs.length})</span>
-              <div className="h-px flex-1 bg-[#2A2D3E]" />
+            {/* Group Divider */}
+            <div className="mb-1.5 flex items-center gap-2">
+              <div className="h-px flex-1 bg-[#1E2029]" />
+              <span className="text-[9px] font-medium text-[#D4A855] uppercase tracking-wider">{getCustomerName(customerId)}</span>
+              <span className="text-[8px] text-gray-700 tabular-nums">({recs.length})</span>
+              <div className="h-px flex-1 bg-[#1E2029]" />
             </div>
+
+            {/* Cards */}
             <div className="space-y-1.5">
               {recs.map((r) => (
-                <div key={r.id} className="group rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] p-2.5 transition-colors hover:border-[#3A3D5E] animate-[cardIn_0.3s_ease-out]">
-                  <div className="mb-1.5 flex items-start justify-between">
-                    <div className="flex items-center gap-1.5 min-w-0">
+                <div
+                  key={r.id}
+                  className="group rounded-lg border border-[#1E2029] bg-[#0F1017] p-2.5 transition-all hover:border-[#252836] hover:bg-[#13141C] animate-[cardIn_0.25s_ease-out]"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
                       <span className="text-xs font-medium text-white truncate">{r.name}</span>
                       {r.isJoint && (
-                        <span className="shrink-0 rounded bg-[#4A7CFF]/15 px-1 py-px text-[9px] text-[#4A7CFF]">共债</span>
+                        <span className="shrink-0 rounded bg-[#A78BFA]/10 px-1 py-px text-[8px] font-medium text-[#A78BFA]">共债</span>
                       )}
-                      <span className="shrink-0 text-[11px] font-semibold text-[#F87171]">¥{formatMoney(toNum(r.totalDebt))}</span>
                     </div>
-                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 shrink-0 ml-2">
-                      <button onClick={() => handleEdit(r)} className="rounded p-1 text-gray-400 transition-colors hover:bg-[#22253A] hover:text-[#4A7CFF]">
-                        <Pencil size={12} />
+                    <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleEdit(r)} className="rounded p-1 text-gray-600 hover:text-[#4A7CFF] hover:bg-[#1A1C27] transition-colors">
+                        <Pencil size={11} />
                       </button>
-                      <button onClick={() => handleDelete(r.id)} className="rounded p-1 text-gray-400 transition-colors hover:bg-[#22253A] hover:text-[#F87171]">
-                        <Trash2 size={12} />
+                      <button onClick={() => handleDelete(r.id)} className="rounded p-1 text-gray-600 hover:text-[#F87171] hover:bg-[#1A1C27] transition-colors">
+                        <Trash2 size={11} />
                       </button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
-                    <div className="text-gray-500 truncate">身份证：<span className="text-gray-400">{r.idCard || '-'}</span></div>
-                    <div className="text-gray-500 truncate">合同号：<span className="text-gray-400">{r.contractNo || '-'}</span></div>
-                    <div className="text-gray-500">逾期：<span className={r.overdueDays > 90 ? 'text-[#F87171]' : 'text-gray-400'}>{r.overdueDays}天</span></div>
-                    <div className="text-gray-500 truncate">机构：<span className="text-gray-400">{r.institution || '-'}</span></div>
-                    <div className="text-gray-500">本金：<span className="text-gray-400">¥{formatMoney(toNum(r.loanPrincipal))}</span></div>
-                    <div className="text-gray-500 truncate">电话：<span className="text-gray-400">{r.phone || '-'}</span></div>
+
+                  <div className="mt-1.5 grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
+                    <div className="text-gray-600 truncate">身份证<span className="text-gray-500 ml-1">{r.idCard || '-'}</span></div>
+                    <div className="text-gray-600 truncate">合同号<span className="text-gray-500 ml-1">{r.contractNo || '-'}</span></div>
+                    <div className={`font-medium ${r.overdueDays > 90 ? 'text-[#F87171]' : 'text-gray-500'}`}>{r.overdueDays}天逾期</div>
+                    <div className="text-gray-600 truncate">机构<span className="text-gray-500 ml-1">{r.institution || '-'}</span></div>
+                    <div className="text-gray-600">本金<span className="text-gray-500 ml-1">¥{formatMoney(toNum(r.loanPrincipal))}</span></div>
+                    <div className="font-semibold text-[#F87171] tabular-nums">¥{formatMoney(toNum(r.totalDebt))}</div>
                   </div>
                 </div>
               ))}
@@ -213,98 +225,95 @@ export default function RecordList() {
         ))}
 
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-            <FileText size={32} className="mb-2 text-gray-600" />
-            <p className="text-xs">暂无记录</p>
-            <p className="text-[10px] text-gray-600">请在左侧表单中添加数据</p>
+          <div className="flex flex-col items-center justify-center py-16 text-gray-700">
+            <FileText size={28} className="mb-2 opacity-50" />
+            <p className="text-xs font-medium">暂无记录</p>
+            <p className="text-[10px] mt-0.5">请在左侧表单中添加数据</p>
           </div>
         )}
       </div>
 
-      {/* Export Buttons */}
-      <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-[#2A2D3E] pt-2.5">
+      {/* Export Actions */}
+      <div className="shrink-0 border-t border-[#1E2029] px-4 py-2.5 flex items-center gap-1.5 flex-wrap">
         <button
           onClick={handleOpenMergeModal}
-          className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#34D399] to-[#2FC78A] px-3 py-1.5 text-[11px] font-medium text-white transition-all hover:from-[#2FC78A] hover:to-[#26B777] shadow-md shadow-[#34D399]/20"
+          className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#34D399] to-[#26B777] px-3 py-1.5 text-[10px] font-semibold text-white shadow-md shadow-[#34D399]/15 hover:shadow-[#34D399]/25 transition-all active:scale-[0.97]"
         >
-          <Merge size={13} />
+          <Merge size={12} />
           批量导出
         </button>
-
         <button
           onClick={() => window.open(api.exportXlsxUrl(), '_blank')}
-          className="flex items-center gap-1 rounded-lg bg-[#4A7CFF] px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-[#3B6AE0]"
+          className="flex items-center gap-1 rounded-lg bg-[#4A7CFF] px-2.5 py-1.5 text-[10px] font-semibold text-white hover:bg-[#3B6AE0] transition-colors"
         >
-          <FileSpreadsheet size={12} /> 导出 XLSX
+          <FileSpreadsheet size={11} /> 导出 XLSX
         </button>
-
         <button
           onClick={() => window.open(api.downloadTemplateUrl(), '_blank')}
-          className="flex items-center gap-1 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-2.5 py-1.5 text-[11px] text-gray-300 transition-colors hover:bg-[#22253A]"
+          className="flex items-center gap-1 rounded-lg border border-[#252836] bg-transparent px-2.5 py-1.5 text-[10px] text-gray-500 hover:text-gray-300 hover:border-[#333648] transition-colors"
         >
-          <Download size={12} /> 下载模板
+          <Download size={11} /> 模板
         </button>
-
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-1 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-2.5 py-1.5 text-[11px] text-gray-300 transition-colors hover:bg-[#22253A]"
+          className="flex items-center gap-1 rounded-lg border border-[#252836] bg-transparent px-2.5 py-1.5 text-[10px] text-gray-500 hover:text-gray-300 hover:border-[#333648] transition-colors"
         >
-          <Printer size={12} /> 打印
+          <Printer size={11} /> 打印
         </button>
       </div>
 
       {/* ====== 合并导出选择弹窗 ====== */}
       {mergeModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-xl border border-[#2A2D3E] bg-[#161821] shadow-2xl animate-[fadeSlideUp_0.2s_ease-out] flex flex-col">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-xl border border-[#1E2029] bg-[#0F1117] shadow-2xl shadow-black/40 animate-[fadeSlideUp_0.2s_ease-out] flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#2A2D3E] px-5 py-4">
+            <div className="flex items-center justify-between border-b border-[#1E2029] px-5 py-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#34D399]/15">
-                  <Merge size={16} className="text-[#34D399]" />
+                  <Merge size={15} className="text-[#34D399]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-white">批量导出</h3>
-                  <p className="text-[11px] text-gray-500">选择需要导出的案件数据</p>
+                  <p className="text-[10px] text-gray-500">选择需要导出的案件数据</p>
                 </div>
               </div>
-              <button onClick={() => setMergeModalOpen(false)} className="rounded p-1.5 text-gray-400 hover:bg-[#22253A] hover:text-white transition-colors">
-                <X size={18} />
+              <button onClick={() => setMergeModalOpen(false)} className="rounded p-1.5 text-gray-600 hover:bg-[#1A1C27] hover:text-white transition-colors">
+                <X size={17} />
               </button>
             </div>
 
-            {/* Toolbar: search + select all + count */}
-            <div className="flex items-center gap-3 border-b border-[#2A2D3E] px-5 py-3">
+            {/* Toolbar */}
+            <div className="flex items-center gap-3 border-b border-[#1E2029] px-5 py-3">
               <div className="relative flex-1">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600" />
                 <input
                   value={mergeSearch}
                   onChange={(e) => { setMergeSearch(e.target.value); setMergeSelectAll(false); }}
                   placeholder="在弹窗中搜索..."
-                  className="w-full rounded-lg border border-[#2A2D3E] bg-[#22253A] py-1.5 pl-8 pr-3 text-xs text-white placeholder-gray-500 outline-none focus:border-[#4A7CFF]"
+                  className="w-full rounded-lg border border-[#252836] bg-[#13141C] py-1.5 pl-8 pr-3 text-xs text-gray-200 placeholder-gray-600 outline-none focus:border-[#34D399]/40"
                 />
               </div>
               <button
                 onClick={handleToggleAllMerge}
-                className={`flex shrink-0 items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
+                className={`flex shrink-0 items-center gap-1 rounded-md px-2.5 py-1.5 text-[10px] font-medium transition-colors ${
                   isAllMergeSelected || mergeSelectAll
-                    ? 'bg-[#4A7CFF]/15 text-[#4A7CFF]'
-                    : 'border border-[#2A2D3E] text-gray-400 hover:text-white'
+                    ? 'bg-[#34D399]/15 text-[#34D399]'
+                    : 'border border-[#252836] text-gray-500 hover:text-gray-300'
                 }`}
               >
-                {(isAllMergeSelected || mergeSelectAll) ? <CheckSquare size={12} /> : <Square size={12} />}
+                {(isAllMergeSelected || mergeSelectAll) ? <CheckSquare size={11} /> : <Square size={11} />}
                 {isAllMergeSelected || mergeSelectAll ? '取消' : '全选'}
               </button>
-              <div className="shrink-0 rounded-md bg-[#D4A855]/10 px-2.5 py-1.5 text-[11px] font-medium text-[#D4A855]">
-                已选 {selectedCount} 条 / 共 {records.length} 条
+              <div className="shrink-0 rounded-md bg-[#D4A855]/10 px-2.5 py-1.5 text-[10px] font-medium text-[#D4A855] tabular-nums">
+                已选 {selectedCount} / {records.length}
               </div>
             </div>
 
-            {/* Record List in Modal */}
+            {/* Record List */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-5 py-3 space-y-1.5" style={{ maxHeight: '40vh' }}>
               {mergeFilteredRecords.length === 0 ? (
-                <div className="flex flex-col items-center py-8 text-gray-500">
-                  <FileText size={28} className="mb-2 text-gray-600" />
+                <div className="flex flex-col items-center py-10 text-gray-600">
+                  <FileText size={24} className="mb-2 opacity-50" />
                   <p className="text-xs">无匹配记录</p>
                 </div>
               ) : (
@@ -317,24 +326,24 @@ export default function RecordList() {
                       onClick={() => toggleMergeSelect(r.id)}
                       className={`flex cursor-pointer items-center gap-3 rounded-lg border p-2.5 transition-all ${
                         isSelected
-                          ? 'border-[#34D399] bg-[#34D399]/8'
-                          : 'border-[#2A2D3E] bg-[#1C1E2A] hover:border-[#3A3D5E]'
+                          ? 'border-[#34D399]/50 bg-[#34D399]/8'
+                          : 'border-[#1E2029] bg-[#0F1017] hover:border-[#252836]'
                       }`}
                     >
                       <button className="shrink-0">
                         {isSelected
-                          ? <CheckSquare size={15} className="text-[#34D399]" />
-                          : <Square size={15} className="text-gray-500" />}
+                          ? <CheckSquare size={14} className="text-[#34D399]" />
+                          : <Square size={14} className="text-gray-600" />}
                       </button>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="truncate text-xs font-medium text-white">{r.name}</span>
-                          {r.isJoint && <span className="shrink-0 rounded bg-[#4A7CFF]/15 px-1 py-px text-[9px] text-[#4A7CFF]">共债</span>}
-                          <span className="shrink-0 text-[10px] text-gray-500">{custName}</span>
+                          {r.isJoint && <span className="shrink-0 rounded bg-[#A78BFA]/10 px-1 py-px text-[8px] text-[#A78BFA]">共债</span>}
+                          <span className="shrink-0 text-[9px] text-gray-600">{custName}</span>
                         </div>
-                        <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-400">
+                        <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-500">
                           <span>{r.idCard || '-'} · {r.contractNo || '-'}</span>
-                          <span className="ml-auto font-medium text-[#F87171]">¥{formatMoney(toNum(r.totalDebt))}</span>
+                          <span className="ml-auto font-medium text-[#F87171] tabular-nums">¥{formatMoney(toNum(r.totalDebt))}</span>
                           <span className={`${r.overdueDays > 90 ? 'text-[#F87171]' : ''}`}>{r.overdueDays}天</span>
                         </div>
                       </div>
@@ -344,18 +353,18 @@ export default function RecordList() {
               )}
             </div>
 
-            {/* Footer: summary + confirm */}
-            <div className="border-t border-[#2A2D3E] px-5 py-4 space-y-3">
+            {/* Footer */}
+            <div className="border-t border-[#1E2029] px-5 py-4 space-y-3">
               {selectedCount > 0 && (
                 <div className="flex items-center justify-between rounded-lg bg-[#34D399]/8 px-4 py-2.5 text-xs">
-                  <span className="text-[#34D399]">已选择 <strong>{selectedCount}</strong> 条记录</span>
-                  <span>合计欠款：<strong className="text-[#F87171]">¥{formatMoney(totalSelectedDebt)}</strong></span>
+                  <span className="text-[#34D399]">已选 <strong>{selectedCount}</strong> 条记录</span>
+                  <span>合计欠款：<strong className="text-[#F87171] tabular-nums">¥{formatMoney(totalSelectedDebt)}</strong></span>
                 </div>
               )}
               <div className="flex items-center justify-end gap-3">
                 <button
                   onClick={() => setMergeModalOpen(false)}
-                  className="rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-4 py-2 text-xs text-gray-300 transition-colors hover:bg-[#22253A]"
+                  className="rounded-lg border border-[#252836] bg-transparent px-4 py-2 text-xs text-gray-400 hover:text-gray-300 hover:border-[#333648] transition-colors"
                 >
                   取消
                 </button>
@@ -364,11 +373,11 @@ export default function RecordList() {
                   disabled={selectedCount === 0}
                   className={`flex items-center gap-1.5 rounded-lg px-5 py-2 text-xs font-bold text-white transition-all ${
                     selectedCount > 0
-                      ? 'bg-gradient-to-r from-[#34D399] to-[#2FC78A] shadow-md shadow-[#34D399]/25 hover:from-[#2FC78A] hover:to-[#26B777]'
-                      : 'cursor-not-allowed bg-gray-600 opacity-50'
+                      ? 'bg-gradient-to-r from-[#34D399] to-[#26B777] shadow-md shadow-[#34D399]/20 hover:from-[#2FC78A] hover:to-[#22A06B] active:scale-[0.97]'
+                      : 'cursor-not-allowed bg-gray-800 opacity-40'
                   }`}
                 >
-                  <Merge size={14} />
+                  <Merge size={13} />
                   确认导出 ({selectedCount})
                 </button>
               </div>

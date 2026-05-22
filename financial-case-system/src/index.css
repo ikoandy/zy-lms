@@ -2,11 +2,12 @@
 
 @theme {
   --color-bg: #0F1117;
-  --color-bg-elevated: #161821;
-  --color-bg-card: #1C1E2A;
-  --color-bg-input: #22253A;
-  --color-border: #2A2D42;
-  --color-border-focus: #4A7CFF;
+  --color-bg-elevated: #13141C;
+  --color-bg-card: #0F1017;
+  --color-bg-input: #1A1C27;
+  --color-border: #1E2029;
+  --color-border-subtle: #252836;
+  --color-border-focus: #D4A855;
   --color-accent: #4A7CFF;
   --color-accent-hover: #6B95FF;
   --color-success: #34D399;
@@ -17,6 +18,11 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--color-bg);
@@ -25,18 +31,24 @@ body {
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.custom-scrollbar::-webkit-scrollbar { width: 5px; }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border-subtle); border-radius: 2px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #333648; }
+
+::selection {
+  background: rgba(212, 168, 85, 0.25);
+  color: white;
+}
 
 @media print {
   body * { visibility: hidden; }
