@@ -142,70 +142,69 @@ export default function RecordList() {
   return (
     <div className="flex h-full flex-col">
       {/* Search & Filter */}
-      <div className="mb-3 space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              placeholder="搜索姓名、身份证、合同号..."
-              className="w-full rounded-lg border border-[#2A2D3E] bg-[#22253A] py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 outline-none transition-colors focus:border-[#4A7CFF]"
-            />
-          </div>
-          <div className="relative">
-            <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <select
-              value={filterCustomerId ?? ''}
-              onChange={(e) => setFilterCustomerId(e.target.value ? Number(e.target.value) : null)}
-              className="appearance-none rounded-lg border border-[#2A2D3E] bg-[#22253A] py-2 pl-9 pr-8 text-sm text-white outline-none transition-colors focus:border-[#4A7CFF]"
-            >
-              <option value="">全部客户</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name || c.institutionName}</option>
-              ))}
-            </select>
-          </div>
+      <div className="mb-2 flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
+          <input
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="搜索姓名、身份证、合同号..."
+            className="w-full rounded-lg border border-[#2A2D3E] bg-[#22253A] py-1.5 pl-8 pr-3 text-xs text-white placeholder-gray-500 outline-none transition-colors focus:border-[#4A7CFF]"
+          />
         </div>
-        <div className="text-[11px] text-gray-500">共 {filtered.length} 条记录</div>
+        <div className="relative">
+          <Filter size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
+          <select
+            value={filterCustomerId ?? ''}
+            onChange={(e) => setFilterCustomerId(e.target.value ? Number(e.target.value) : null)}
+            className="appearance-none rounded-lg border border-[#2A2D3E] bg-[#22253A] py-1.5 pl-8 pr-7 text-xs text-white outline-none transition-colors focus:border-[#4A7CFF]"
+          >
+            <option value="">全部客户</option>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id}>{c.name || c.institutionName}</option>
+            ))}
+          </select>
+        </div>
+        <span className="shrink-0 text-[11px] text-gray-500 whitespace-nowrap">{filtered.length} 条</span>
       </div>
 
       {/* Records List */}
-      <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-1">
+      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-1">
         {Array.from(grouped.entries()).map(([customerId, recs]) => (
           <div key={customerId}>
-            <div className="mb-1.5 flex items-center gap-2">
+            <div className="mb-1 flex items-center gap-2">
               <div className="h-px flex-1 bg-[#2A2D3E]" />
-              <span className="text-[11px] font-medium text-[#D4A855]">{getCustomerName(customerId)}</span>
-              <span className="text-[10px] text-gray-500">({recs.length})</span>
+              <span className="text-[10px] font-medium text-[#D4A855]">{getCustomerName(customerId)}</span>
+              <span className="text-[9px] text-gray-500">({recs.length})</span>
               <div className="h-px flex-1 bg-[#2A2D3E]" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {recs.map((r) => (
-                <div key={r.id} className="group rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] p-3 transition-colors hover:border-[#3A3D5E] animate-[cardIn_0.3s_ease-out]">
-                  <div className="mb-2 flex items-start justify-between">
-                    <div>
-                      <span className="text-sm font-medium text-white">{r.name}</span>
+                <div key={r.id} className="group rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] p-2.5 transition-colors hover:border-[#3A3D5E] animate-[cardIn_0.3s_ease-out]">
+                  <div className="mb-1.5 flex items-start justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-xs font-medium text-white truncate">{r.name}</span>
                       {r.isJoint && (
-                        <span className="ml-2 rounded bg-[#4A7CFF]/15 px-1.5 py-0.5 text-[10px] text-[#4A7CFF]">共债</span>
+                        <span className="shrink-0 rounded bg-[#4A7CFF]/15 px-1 py-px text-[9px] text-[#4A7CFF]">共债</span>
                       )}
+                      <span className="shrink-0 text-[11px] font-semibold text-[#F87171]">¥{formatMoney(toNum(r.totalDebt))}</span>
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 shrink-0 ml-2">
                       <button onClick={() => handleEdit(r)} className="rounded p-1 text-gray-400 transition-colors hover:bg-[#22253A] hover:text-[#4A7CFF]">
-                        <Pencil size={13} />
+                        <Pencil size={12} />
                       </button>
                       <button onClick={() => handleDelete(r.id)} className="rounded p-1 text-gray-400 transition-colors hover:bg-[#22253A] hover:text-[#F87171]">
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
-                    <div className="text-gray-500">身份证：<span className="text-gray-300">{r.idCard || '-'}</span></div>
-                    <div className="text-gray-500">合同号：<span className="text-gray-300">{r.contractNo || '-'}</span></div>
-                    <div className="text-gray-500">欠款总额：<span className="font-medium text-[#F87171]">¥{formatMoney(toNum(r.totalDebt))}</span></div>
-                    <div className="text-gray-500">逾期天数：<span className={r.overdueDays > 90 ? 'text-[#F87171]' : 'text-gray-300'}>{r.overdueDays}天</span></div>
-                    <div className="text-gray-500">委托机构：<span className="text-gray-300">{r.institution || '-'}</span></div>
-                    <div className="text-gray-500">借款本金：<span className="text-gray-300">¥{formatMoney(toNum(r.loanPrincipal))}</span></div>
+                  <div className="grid grid-cols-3 gap-x-3 gap-y-0.5 text-[10px]">
+                    <div className="text-gray-500 truncate">身份证：<span className="text-gray-400">{r.idCard || '-'}</span></div>
+                    <div className="text-gray-500 truncate">合同号：<span className="text-gray-400">{r.contractNo || '-'}</span></div>
+                    <div className="text-gray-500">逾期：<span className={r.overdueDays > 90 ? 'text-[#F87171]' : 'text-gray-400'}>{r.overdueDays}天</span></div>
+                    <div className="text-gray-500 truncate">机构：<span className="text-gray-400">{r.institution || '-'}</span></div>
+                    <div className="text-gray-500">本金：<span className="text-gray-400">¥{formatMoney(toNum(r.loanPrincipal))}</span></div>
+                    <div className="text-gray-500 truncate">电话：<span className="text-gray-400">{r.phone || '-'}</span></div>
                   </div>
                 </div>
               ))}
@@ -214,43 +213,43 @@ export default function RecordList() {
         ))}
 
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-            <FileText size={40} className="mb-3 text-gray-600" />
-            <p className="text-sm">暂无记录</p>
-            <p className="text-xs text-gray-600">请在左侧表单中添加数据</p>
+          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <FileText size={32} className="mb-2 text-gray-600" />
+            <p className="text-xs">暂无记录</p>
+            <p className="text-[10px] text-gray-600">请在左侧表单中添加数据</p>
           </div>
         )}
       </div>
 
       {/* Export Buttons */}
-      <div className="mt-3 flex flex-wrap gap-2 border-t border-[#2A2D3E] pt-3">
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-[#2A2D3E] pt-2.5">
         <button
           onClick={handleOpenMergeModal}
-          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#34D399] to-[#2FC78A] px-4 py-2 text-xs font-medium text-white transition-all hover:from-[#2FC78A] hover:to-[#26B777] shadow-md shadow-[#34D399]/20"
+          className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#34D399] to-[#2FC78A] px-3 py-1.5 text-[11px] font-medium text-white transition-all hover:from-[#2FC78A] hover:to-[#26B777] shadow-md shadow-[#34D399]/20"
         >
-          <Merge size={14} />
+          <Merge size={13} />
           批量导出
         </button>
 
         <button
           onClick={() => window.open(api.exportXlsxUrl(), '_blank')}
-          className="flex items-center gap-1.5 rounded-lg bg-[#4A7CFF] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#3B6AE0]"
+          className="flex items-center gap-1 rounded-lg bg-[#4A7CFF] px-2.5 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-[#3B6AE0]"
         >
-          <FileSpreadsheet size={13} /> 导出 XLSX
+          <FileSpreadsheet size={12} /> 导出 XLSX
         </button>
 
         <button
           onClick={() => window.open(api.downloadTemplateUrl(), '_blank')}
-          className="flex items-center gap-1.5 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-3 py-1.5 text-xs text-gray-300 transition-colors hover:bg-[#22253A]"
+          className="flex items-center gap-1 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-2.5 py-1.5 text-[11px] text-gray-300 transition-colors hover:bg-[#22253A]"
         >
-          <Download size={13} /> 下载模板
+          <Download size={12} /> 下载模板
         </button>
 
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-1.5 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-3 py-1.5 text-xs text-gray-300 transition-colors hover:bg-[#22253A]"
+          className="flex items-center gap-1 rounded-lg border border-[#2A2D3E] bg-[#1C1E2A] px-2.5 py-1.5 text-[11px] text-gray-300 transition-colors hover:bg-[#22253A]"
         >
-          <Printer size={13} /> 打印
+          <Printer size={12} /> 打印
         </button>
       </div>
 

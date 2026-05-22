@@ -32,7 +32,7 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F1117]">
+    <div className="flex min-h-screen flex-col bg-[#0F1117]">
       <Header />
 
       {/* Toast Notifications */}
@@ -55,7 +55,7 @@ export default function App() {
       </div>
 
       {/* Tab Bar */}
-      <div className="border-b border-[#2A2D3E] bg-[#161821] px-6">
+      <div className="shrink-0 border-b border-[#2A2D3E] bg-[#161821] px-6">
         <div className="flex gap-1">
           {tabs.map((t) => (
             <button
@@ -75,14 +75,16 @@ export default function App() {
       </div>
 
       {/* Content */}
-      <main className="print-area mx-auto max-w-[1600px] px-6 py-6">
+      <main className="print-area flex-1 mx-auto w-full max-w-[1600px] px-6 py-5">
         {currentTab === 'entry' && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
-            <div className="space-y-6 overflow-y-auto custom-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="flex h-[calc(100vh-155px)] gap-5">
+            {/* Left: Form area - wider for data entry */}
+            <div className="w-[55%] min-w-0 shrink-0 overflow-y-auto custom-scrollbar pr-1">
               <CustomerBar />
               <EntryForm />
             </div>
-            <div className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-5">
+            {/* Right: Record list - narrower, compact */}
+            <div className="flex-1 min-w-0 rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-3 overflow-hidden flex flex-col">
               <RecordList />
             </div>
           </div>

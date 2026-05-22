@@ -74,11 +74,11 @@ export default function StatsPanel() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-5">
           <h3 className="mb-4 text-sm font-medium text-white">欠款分布</h3>
-          <BarChart data={debtDistribution.map((d) => ({ ...d }))} color="#4A7CFF" />
+          <BarChart data={debtDistribution.map((d) => ({ label: d.range, value: d.count, count: d.count }))} color="#4A7CFF" />
         </div>
         <div className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-5">
           <h3 className="mb-4 text-sm font-medium text-white">逾期分析</h3>
-          <BarChart data={overdueAnalysis.map((d) => ({ ...d }))} color="#F87171" />
+          <BarChart data={overdueAnalysis.map((d) => ({ label: d.range, value: d.count, count: d.count }))} color="#F87171" />
         </div>
       </div>
 

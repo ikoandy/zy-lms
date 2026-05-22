@@ -27,7 +27,25 @@ export default function EntryForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (editingRecord) setForm({ ...editingRecord });
+    if (editingRecord) {
+      const { id, createdAt, updatedAt, customerName, customerInstitution, ...rest } = editingRecord;
+      setForm({
+        ...rest,
+        dataExtractionDate: rest.dataExtractionDate ?? '',
+        idCard: rest.idCard ?? '',
+        phone: rest.phone ?? '',
+        gender: rest.gender ?? '',
+        ethnicity: rest.ethnicity ?? '',
+        householdAddress: rest.householdAddress ?? '',
+        mailingAddress: rest.mailingAddress ?? '',
+        contractNo: rest.contractNo ?? '',
+        institution: rest.institution ?? '',
+        lender: rest.lender ?? '',
+        disbursementCard: rest.disbursementCard ?? '',
+        collateral: rest.collateral ?? '',
+        thirdParty: rest.thirdParty ?? '',
+      } as typeof form);
+    }
   }, [editingRecord]);
 
   const calculated = useMemo(() => {
@@ -51,7 +69,7 @@ export default function EntryForm() {
   const handleChange = (field: string, value: string | number | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (field === 'idCard' || field === 'phone') {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => { const next = { ...prev }; delete next[field]; return next; });
     }
   };
 
@@ -79,10 +97,10 @@ export default function EntryForm() {
 
     const payload = {
       ...form,
-      customerId: currentCustomerId,
+      customerId: currentCustomerId ?? undefined,
       totalDebt: String(calculated.totalDebt),
       principalPenaltyCompound: String(calculated.principalPenaltyCompound),
-    };
+    } as any;
 
     try {
       if (editingRecord) {
@@ -110,7 +128,7 @@ export default function EntryForm() {
     }`;
 
   const warningCls =
-    'w-full rounded-lg border border-[#D4A855]/30 bg-[#D4A855]/5 px-3 py-2 text-sm text-[#D4A855] outline-none';
+    'w-full rounded-lg border border-[#D4A855]/30 bg-[#D4A855]/5 px-3 py-2.5 text-sm text-[#D4A855] outline-none';
 
   const Field = ({
     label,
@@ -145,13 +163,13 @@ export default function EntryForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">
+        <h2 className="text-base font-semibold text-white">
           {editingRecord ? '编辑记录' : '数据录入'}
         </h2>
         <div className="flex items-center gap-2">
           <button
             type="submit"
-            className="flex items-center gap-1.5 rounded-lg bg-[#4A7CFF] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#3B6AE0]"
+            className="flex items-center gap-1.5 rounded-lg bg-[#4A7CFF] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#3B6AE0]"
           >
             <Save size={15} />
             {editingRecord ? '保存修改' : '保存记录'}
@@ -174,10 +192,10 @@ export default function EntryForm() {
         </div>
       )}
 
-      {/* Basic Info */}
+      {/* Basic Info - 3 cols */}
       <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
         <legend className="px-1 text-sm font-medium text-[#D4A855]">基本信息</legend>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="姓名" field="name" placeholder="借款人姓名" required />
           <div>
             <label className="mb-1 block text-xs text-gray-400">是否联合</label>
@@ -201,30 +219,32 @@ export default function EntryForm() {
           <Field label="民族" field="ethnicity" placeholder="汉族等" />
           <Field label="合同编号" field="contractNo" placeholder="合同编号" />
           <Field label="机构" field="institution" placeholder="贷款机构" />
+          <Field label="出借人" field="lender" placeholder="出借方名称" />
         </div>
       </fieldset>
 
-      {/* Loan Info */}
+      {/* Loan Info - 3 cols */}
       <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
         <legend className="px-1 text-sm font-medium text-[#4A7CFF]">借贷信息</legend>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="借款本金" field="loanPrincipal" placeholder="元" type="number" />
           <Field label="年利率" field="annualRate" placeholder="如 0.05" type="number" />
           <Field label="合同金额" field="contractAmount" placeholder="元" type="number" />
-          <Field label="出借人" field="lender" placeholder="出借方名称" />
           <Field label="申请日期" field="loanApplyDate" type="date" />
           <Field label="放款日期" field="disbursementDate" type="date" />
+          <Field label="放款卡号" field="disbursementCard" placeholder="放款银行卡号" />
           <Field label="总期数" field="totalInstallments" type="number" />
           <Field label="已还期数" field="paidInstallments" type="number" />
           <Field label="剩余期数" field="remainingInstallments" type="number" />
           <Field label="还款到期日" field="repaymentDueDate" type="date" />
+          <Field label="抵押物" field="collateral" placeholder="抵押物描述" />
         </div>
       </fieldset>
 
-      {/* Repayment Info */}
+      {/* Repayment Info - 4 cols for numeric fields */}
       <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
         <legend className="px-1 text-sm font-medium text-[#34D399]">还款信息</legend>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-4 gap-x-4 gap-y-3">
           <Field label="已还本金" field="paidPrincipal" type="number" />
           <Field label="已还利息" field="paidInterest" type="number" />
           <Field label="已还罚息" field="paidPenalty" type="number" />
@@ -235,33 +255,34 @@ export default function EntryForm() {
           <Field label="违约金" field="orderOverduePenalty" type="number" />
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-3">
           <div className={warningCls}>
             <div className="flex justify-between">
               <span className="text-xs">本金+罚息+复利</span>
               <span className="font-medium">{calculated.principalPenaltyCompound.toLocaleString()}</span>
             </div>
           </div>
-          <div className={warningCls}>
-            <div className="flex justify-between">
+          <div className={`col-span-2 ${warningCls}`}>
+            <div className="flex items-center justify-between">
               <span className="text-xs font-medium">总欠款（自动计算）</span>
-              <span className="text-base font-bold">¥{calculated.totalDebt.toLocaleString()}</span>
+              <span className="text-lg font-bold text-[#F87171]">¥{calculated.totalDebt.toLocaleString()}</span>
             </div>
           </div>
         </div>
       </fieldset>
 
-      {/* Other Info */}
+      {/* Other Info - 2 cols with full-width addresses */}
       <fieldset className="rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
         <legend className="px-1 text-sm font-medium text-[#A78BFA]">其他信息</legend>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           <Field label="逾期天数" field="overdueDays" type="number" />
           <Field label="第三方" field="thirdParty" placeholder="第三方信息" />
-          <div className="col-span-2">
-            <Field label="户籍地址" field="householdAddress" placeholder="户籍地址" />
+          <Field label="数据提取日期" field="dataExtractionDate" type="date" />
+          <div className="col-span-3">
+            <Field label="户籍地址" field="householdAddress" placeholder="户籍地址（详细到门牌号）" />
           </div>
-          <div className="col-span-2">
-            <Field label="通讯地址" field="mailingAddress" placeholder="通讯地址" />
+          <div className="col-span-3">
+            <Field label="通讯地址" field="mailingAddress" placeholder="通讯地址（详细到门牌号）" />
           </div>
         </div>
       </fieldset>

@@ -31,8 +31,8 @@ export default function CustomerBar() {
   };
 
   return (
-    <div className="animate-[fadeSlideUp_0.4s_ease_both] rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="animate-[fadeSlideUp_0.4s_ease_both] rounded-xl border border-[#2A2D3E] bg-[#1C1E2A] p-3">
+      <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-white">
           委托方管理
           <span className="ml-2 rounded bg-[#4A7CFF]/15 px-2 py-0.5 text-xs font-normal text-[#4A7CFF]">
@@ -49,7 +49,7 @@ export default function CustomerBar() {
       </div>
 
       {showAdd && (
-        <div className="mb-3 space-y-2 rounded-lg border border-[#4A7CFF]/30 bg-[#4A7CFF]/5 p-3">
+        <div className="mb-2 space-y-1.5 rounded-lg border border-[#4A7CFF]/30 bg-[#4A7CFF]/5 p-2.5">
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
